@@ -1,0 +1,27 @@
+═══════════════════════════════════════════════════════════════
+LOCAL CI - PUSH MODE (guarded tests)
+Repo: mlx-graphs
+Time: 2025-12-28 20:52:53
+═══════════════════════════════════════════════════════════════
+
+Pushing: refs/heads/main -> refs/heads/main
+
+⚠️  WARNING: You have uncommitted changes!
+   The hook checks your WORKING DIRECTORY but pushes COMMITTED code.
+   If your uncommitted changes fix lint/test issues, CI will still fail.
+
+   Uncommitted files:
+.github/ISSUE_TEMPLATE/bug_report.md
+.github/ISSUE_TEMPLATE/feature_request.md
+.github/pull_request_template.md
+.github/workflows/linting_and_tests.yml
+.github/workflows/publish_docs.yml
+.github/workflows/release.yml
+
+
+❌ PUSH BLOCKED - commit your changes first!
+
+   Options:
+   1. git add -A && git commit -m 'message'  (commit changes)
+   2. git stash                              (stash if not ready)
+   3. git push --no-verify                   (bypass - emergency only)
