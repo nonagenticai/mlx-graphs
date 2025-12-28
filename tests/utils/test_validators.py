@@ -26,9 +26,9 @@ def test_validate_adjacency_matrix(x, expected_exception):
         with pytest.raises(expected_exception):
             foo(adjacency_matrix=x)
     else:
-        assert (
-            foo(adjacency_matrix=x) is True
-        ), "Input with valid adjacency matrix failed"
+        assert foo(adjacency_matrix=x) is True, (
+            "Input with valid adjacency matrix failed"
+        )
 
 
 @pytest.mark.parametrize(
@@ -88,6 +88,6 @@ def test_validate_edge_index_and_features(x, f, expected_exception):
         with pytest.raises(expected_exception):
             foo(edge_index=x, edge_features=f)
     else:
-        assert (
-            foo(edge_index=x, edge_features=f) is True
-        ), "Input with valid edge_index and features failed"
+        assert foo(edge_index=x, edge_features=f) is True, (
+            "Input with valid edge_index and features failed"
+        )

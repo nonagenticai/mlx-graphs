@@ -72,7 +72,7 @@ class PlanetoidDataset(Dataset):
 
     _url = "https://github.com/kimiyoung/planetoid/raw/master/data"
     _geom_gcn_url = (
-        "https://raw.githubusercontent.com/graphdml-uiuc-jlu/" "geom-gcn/master"
+        "https://raw.githubusercontent.com/graphdml-uiuc-jlu/geom-gcn/master"
     )
 
     def __init__(

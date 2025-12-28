@@ -78,12 +78,12 @@ class GraphDataBatch(GraphData):
         return self._batch_indices  # type: ignore - provided via collate
 
     @overload
-    def __getitem__(self, idx: int) -> GraphData:
-        ...
+    def __getitem__(self, idx: int) -> GraphData: ...
 
     @overload
-    def __getitem__(self, idx: Union[slice, mx.array, list[int]]) -> list[GraphData]:
-        ...
+    def __getitem__(
+        self, idx: Union[slice, mx.array, list[int]]
+    ) -> list[GraphData]: ...
 
     def __getitem__(
         self, idx: Union[int, slice, mx.array, list[int]]
@@ -176,14 +176,12 @@ class GraphDataBatch(GraphData):
         return from_idx, upto_idx
 
     @overload
-    def _handle_neg_index_if_needed(self, index: int) -> int:
-        ...
+    def _handle_neg_index_if_needed(self, index: int) -> int: ...
 
     @overload
     def _handle_neg_index_if_needed(
         self, index: Union[mx.array, list[int]]
-    ) -> list[int]:
-        ...
+    ) -> list[int]: ...
 
     def _handle_neg_index_if_needed(
         self, index: Union[mx.array, list[int], int]

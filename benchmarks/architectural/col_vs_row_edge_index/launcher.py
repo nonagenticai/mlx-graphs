@@ -98,8 +98,8 @@ for name, f_N2, arg_N2, f_2N, arg_2N in comparison_list:
     tab.append(
         [
             name,
-            "{:.2f}\u03BCs".format(time_N2 * 1000000 / number_iters),
-            "{:.2f}\u03BCs".format(time_2N * 1000000 / number_iters),
+            "{:.2f}\u03bcs".format(time_N2 * 1000000 / number_iters),
+            "{:.2f}\u03bcs".format(time_2N * 1000000 / number_iters),
             "{:.2f}%".format(-(time_N2 - time_2N) / time_2N * 100),
         ]
     )

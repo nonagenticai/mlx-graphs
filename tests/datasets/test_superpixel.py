@@ -21,6 +21,6 @@ def test_superpixel_dataset(tmp_path):
             mx.array(batch_pyg.edge_index.tolist()).shape == batch_mxg.edge_index.shape
         ), "Edge indices have different shapes"
 
-        assert mx.array_equal(
-            mx.array(batch_pyg.y.tolist()), batch_mxg.graph_labels
-        ), "Graph labels are different"
+        assert mx.array_equal(mx.array(batch_pyg.y.tolist()), batch_mxg.graph_labels), (
+            "Graph labels are different"
+        )

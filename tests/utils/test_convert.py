@@ -18,9 +18,9 @@ def test_to_networkx():
     assert networkx_graph.number_of_edges() == len(edge_index[0])
 
     for node in networkx_graph.nodes():
-        assert (
-            "features" in networkx_graph.nodes[node]
-        ), f"Node {node} does not have 'features' attribute"
+        assert "features" in networkx_graph.nodes[node], (
+            f"Node {node} does not have 'features' attribute"
+        )
 
     for i in range(graph.num_nodes):
         assert mx.array_equal(

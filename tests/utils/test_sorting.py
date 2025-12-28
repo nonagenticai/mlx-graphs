@@ -10,9 +10,9 @@ def test_sort_edge_index():
     expected_edge_features = mx.array([1, 2, 3, 4, 5, 6])
     s, idx = sort_edge_index(edge_index)
     assert mx.array_equal(expected_edge_index, s), "Index sorting failed"
-    assert mx.array_equal(
-        expected_edge_features, edge_features[idx]
-    ), "Wrong sorted indices"
+    assert mx.array_equal(expected_edge_features, edge_features[idx]), (
+        "Wrong sorted indices"
+    )
 
 
 def test_sort_edge_index_and_features():

@@ -52,13 +52,11 @@ ALL_DATASETS = Literal[
 
 
 @overload
-def to_mx_array(x: None) -> None:
-    ...
+def to_mx_array(x: None) -> None: ...
 
 
 @overload
-def to_mx_array(x: np.ndarray) -> mx.array:
-    ...
+def to_mx_array(x: np.ndarray) -> mx.array: ...
 
 
 def to_mx_array(x: Union[np.ndarray, None]) -> Union[mx.array, None]:

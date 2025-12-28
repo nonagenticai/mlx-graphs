@@ -218,8 +218,7 @@ def add_self_loops(
     num_nodes: Optional[int] = None,
     fill_value: Optional[Union[float, mx.array]] = 1,
     allow_repeated: Optional[bool] = True,
-) -> tuple[mx.array, mx.array]:
-    ...
+) -> tuple[mx.array, mx.array]: ...
 
 
 @overload
@@ -229,8 +228,7 @@ def add_self_loops(
     num_nodes: Optional[int] = None,
     fill_value: Optional[Union[float, mx.array]] = 1,
     allow_repeated: Optional[bool] = True,
-) -> mx.array:
-    ...
+) -> mx.array: ...
 
 
 @validate_edge_index_and_features
@@ -291,16 +289,14 @@ def add_self_loops(
 def remove_self_loops(
     edge_index: mx.array,
     edge_features=None,
-) -> mx.array:
-    ...
+) -> mx.array: ...
 
 
 @overload
 def remove_self_loops(
     edge_index: mx.array,
     edge_features: mx.array,
-) -> tuple[mx.array, mx.array]:
-    ...
+) -> tuple[mx.array, mx.array]: ...
 
 
 @validate_edge_index_and_features
@@ -339,15 +335,13 @@ def remove_self_loops(
 
 
 @overload
-def to_undirected(edge_index: mx.array, edge_features=None) -> mx.array:
-    ...
+def to_undirected(edge_index: mx.array, edge_features=None) -> mx.array: ...
 
 
 @overload
 def to_undirected(
     edge_index: mx.array, edge_features: mx.array
-) -> tuple[mx.array, mx.array]:
-    ...
+) -> tuple[mx.array, mx.array]: ...
 
 
 @validate_edge_index_and_features
