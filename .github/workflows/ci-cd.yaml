@@ -14,15 +14,69 @@ jobs:
     runs-on: [self-hosted, linux, arm64]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
-          enable-cache: false
+          enable-cache: true
           python-version: "3.12"
 
-      - name: Run ruff linter
+      - name: Run ruff linter (check only)
         run: uvx ruff check mlx_graphs/
 
-      - name: Run ruff formatter check
+      - name: Run ruff formatter
         run: uvx ruff format --check mlx_graphs/
+
+      - name: Security scan - detect secrets
+        run: |
+          uv pip install detect-secrets
+          uv run detect-secrets scan mlx_graphs/
+
+      - name: Security scan - pip-audit
+        run: |
+          uv pip install pip-audit
+          uv run pip-audit --ignore-vuln GHSA-wj6h-64fc-37mp
+
+  # ============================================
+  # Stage 1.5: Auto-format (only on main, after tests pass)
+  # ============================================
+  auto-format:
+    name: Auto-format Code
+    needs: lint
+    runs-on: [self-hosted, linux, arm64]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          python-version: "3.12"
+          cache-dependency-glob: "**/pyproject.toml"
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Run ruff linter with auto-fix
+        run: uv run ruff check --fix mlx_graphs/
+
+      - name: Run ruff formatter
+        run: uv run ruff format mlx_graphs/
+
+      - name: Commit formatting changes if any
+        run: |
+          git config --local user.email "ci-bot@nonagenticai.com"
+          git config --local user.name "CI Bot"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "style: auto-format with ruff [skip ci]"
+            git push
+          fi
+
