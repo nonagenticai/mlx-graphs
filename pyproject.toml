@@ -73,6 +73,9 @@ select = ["F", "E", "W", "I001"]
 [tool.ruff.format]
 docstring-code-format = true
 
+[tool.local-ci]
+skip_tests = true  # Requires Apple Silicon (MLX) - tests run manually on mini1/mini2
+
 [tool.mypy]
 python_version = "3.10"
 ignore_missing_imports = true
