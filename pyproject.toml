@@ -75,6 +75,7 @@ docstring-code-format = true
 
 [tool.local-ci]
 skip_tests = true  # Requires Apple Silicon (MLX) - tests run manually on mini1/mini2
+skip_ty = true  # External repo - not our type errors to fix
 
 [tool.ty.environment]
 python-version = "3.10"
