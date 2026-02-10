@@ -1,27 +1,38 @@
 ═══════════════════════════════════════════════════════════════
 LOCAL CI - PUSH MODE (guarded tests)
 Repo: mlx-graphs
-Time: 2025-12-28 20:52:53
+Time: 2026-02-10 21:40:24
 ═══════════════════════════════════════════════════════════════
 
 Pushing: refs/heads/main -> refs/heads/main
 
-⚠️  WARNING: You have uncommitted changes!
-   The hook checks your WORKING DIRECTORY but pushes COMMITTED code.
-   If your uncommitted changes fix lint/test issues, CI will still fail.
+───────────────────────────────────────────────────────────────
+[RUFF LINT]
+───────────────────────────────────────────────────────────────
+Running: uv run ruff check .
+warning: The `extra-build-dependencies` option is experimental and may change without warning. Pass `--preview-features extra-build-dependencies` to disable this warning.
+All checks passed!
+✅ Ruff lint passed
 
-   Uncommitted files:
-.github/ISSUE_TEMPLATE/bug_report.md
-.github/ISSUE_TEMPLATE/feature_request.md
-.github/pull_request_template.md
-.github/workflows/linting_and_tests.yml
-.github/workflows/publish_docs.yml
-.github/workflows/release.yml
+───────────────────────────────────────────────────────────────
+[RUFF FORMAT CHECK]
+───────────────────────────────────────────────────────────────
+Running: uv run ruff format --check .
+warning: The `extra-build-dependencies` option is experimental and may change without warning. Pass `--preview-features extra-build-dependencies` to disable this warning.
+103 files already formatted
+✅ Format check passed
 
+───────────────────────────────────────────────────────────────
+[TY (blocking)]
+───────────────────────────────────────────────────────────────
+⏭️  [tool.local-ci] skip_ty = true - skipping ty (external repo)
 
-❌ PUSH BLOCKED - commit your changes first!
+───────────────────────────────────────────────────────────────
+[PYTEST (unit tests with timeout)]
+───────────────────────────────────────────────────────────────
+⏭️  [tool.local-ci] skip_tests = true - skipping tests (hardware-specific)
 
-   Options:
-   1. git add -A && git commit -m 'message'  (commit changes)
-   2. git stash                              (stash if not ready)
-   3. git push --no-verify                   (bypass - emergency only)
+═══════════════════════════════════════════════════════════════
+✅ PUSH ALLOWED
+
+Log saved to: .local-ci-push.txt
