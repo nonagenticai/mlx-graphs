@@ -76,9 +76,11 @@ docstring-code-format = true
 [tool.local-ci]
 skip_tests = true  # Requires Apple Silicon (MLX) - tests run manually on mini1/mini2
 
-[tool.mypy]
-python_version = "3.10"
-ignore_missing_imports = true
+[tool.ty.environment]
+python-version = "3.10"
+
+[tool.ty.rules]
+unresolved-import = "ignore"
 
 [tool.uv.extra-build-dependencies]
 torch-cluster = ["torch"]
@@ -86,4 +88,5 @@ torch-cluster = ["torch"]
 [dependency-groups]
 dev = [
     "detect-secrets>=1.5.0",
+    "ty>=0.0.15",
 ]

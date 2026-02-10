@@ -44,9 +44,9 @@ repos:
   # Type checking and tests - only on push (slower)
   - repo: local
     hooks:
-      - id: mypy
-        name: mypy type checking
-        entry: uv run mypy src/
+      - id: ty
+        name: ty type checking
+        entry: uv run ty check src/
         language: system
         types: [python]
         pass_filenames: false
