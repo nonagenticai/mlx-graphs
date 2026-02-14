@@ -1,9 +1,10 @@
 ═══════════════════════════════════════════════════════════════
 LOCAL CI - PUSH MODE (guarded tests)
 Repo: mlx-graphs
-Time: 2026-02-11 01:17:37
+Time: 2026-02-11 11:52:00
 ═══════════════════════════════════════════════════════════════
 
+Pushing: refs/heads/main -> refs/heads/main
 
 ───────────────────────────────────────────────────────────────
 [RUFF LINT]
@@ -30,3 +31,8 @@ warning: The `extra-build-dependencies` option is experimental and may change wi
 [PYTEST (unit tests with timeout)]
 ───────────────────────────────────────────────────────────────
 ⏭️  [tool.local-ci] skip_tests = true - skipping tests (hardware-specific)
+
+═══════════════════════════════════════════════════════════════
+✅ PUSH ALLOWED
+
+Log saved to: .local-ci-push.txt
