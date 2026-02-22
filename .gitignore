@@ -172,3 +172,7 @@ docs/build
 
 # VSCode files
 .vscode/
+
+# Local CI artifacts
+.local-ci-commit.txt
+.local-ci-push.txt
