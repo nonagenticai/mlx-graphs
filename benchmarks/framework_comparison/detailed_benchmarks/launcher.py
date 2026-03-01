@@ -3,14 +3,9 @@ from argparse import ArgumentParser
 from importlib.metadata import version
 
 import torch
-from benchmark_layers import (
-    benchmark_GATConv,
-    benchmark_gather,
-    benchmark_gather_batch,
-    benchmark_GCNConv,
-    benchmark_scatter,
-    benchmark_scatter_batch,
-)
+from benchmark_layers import (benchmark_GATConv, benchmark_gather,
+                              benchmark_gather_batch, benchmark_GCNConv,
+                              benchmark_scatter, benchmark_scatter_batch)
 from benchmark_utils import print_benchmark, run_processes, str2bool
 
 shapes = [

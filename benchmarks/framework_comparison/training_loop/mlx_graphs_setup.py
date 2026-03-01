@@ -66,6 +66,7 @@ def setup_training_mxg(dataset, layer, batch_size, hid_size, compile=True):
         def step(graph):
             (loss, y_hat), grads = loss_and_grad_fn(model=model, graph=graph)
             optimizer.update(model, grads)
+
     else:
 
         def step(graph):

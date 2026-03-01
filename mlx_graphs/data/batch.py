@@ -229,7 +229,4 @@ def unbatch(batch: GraphDataBatch) -> list[GraphData]:
     Returns:
         List of unbatched `GraphData`
     """
-    return [
-        batch[idx]  # type: ignore
-        for idx in range(batch.num_graphs)
-    ]
+    return [batch[idx] for idx in range(batch.num_graphs)]  # type: ignore
