@@ -40,9 +40,9 @@ class GCNConv(MessagePassing):
         **kwargs: Any,
     ) -> mx.array:
         assert edge_index.shape[0] == 2, "edge_index must have shape (2, num_edges)"
-        assert (
-            edge_index[1].size > 0
-        ), "'col' component of edge_index should not be empty"
+        assert edge_index[1].size > 0, (
+            "'col' component of edge_index should not be empty"
+        )
 
         node_features = self.linear(node_features)
 

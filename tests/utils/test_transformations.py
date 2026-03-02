@@ -41,9 +41,9 @@ def test_to_edge_index():
     assert edge_index.dtype == mx.uint32, "Default dtype of returned array != uint32"
 
     expected_output = mx.array([[0, 0, 1, 2, 2, 2], [1, 2, 0, 0, 1, 2]])
-    assert mx.array_equal(
-        edge_index, expected_output
-    ), "Incorrectly computed edge index"
+    assert mx.array_equal(edge_index, expected_output), (
+        "Incorrectly computed edge index"
+    )
 
 
 def test_to_sparse_adjacency_matrix():
@@ -64,16 +64,16 @@ def test_to_adjacency_matrix():
     num_nodes = 3
     expected_binary_matrix = mx.array([[0, 1, 1], [1, 0, 0], [1, 1, 1]])
     adj_matrix = to_adjacency_matrix(edge_index, num_nodes=num_nodes)
-    assert mx.array_equal(
-        expected_binary_matrix, adj_matrix
-    ), "Incorrect conversion to adjacency matrix"
+    assert mx.array_equal(expected_binary_matrix, adj_matrix), (
+        "Incorrect conversion to adjacency matrix"
+    )
     expected_matrix = mx.array([[0, 1, 2], [3, 0, 0], [5, 1, 2]])
     weighted_adj_matrix = to_adjacency_matrix(
         edge_index, edge_features=edge_features, num_nodes=num_nodes
     )
-    assert mx.array_equal(
-        expected_matrix, weighted_adj_matrix
-    ), "Incorrect conversion to weighted adjacency matrix"
+    assert mx.array_equal(expected_matrix, weighted_adj_matrix), (
+        "Incorrect conversion to weighted adjacency matrix"
+    )
 
     # 4 nodes (extra padding)
     num_nodes = 4
@@ -81,16 +81,16 @@ def test_to_adjacency_matrix():
         [[0, 1, 1, 0], [1, 0, 0, 0], [1, 1, 1, 0], [0, 0, 0, 0]]
     )
     adj_matrix = to_adjacency_matrix(edge_index, num_nodes=num_nodes)
-    assert mx.array_equal(
-        expected_binary_matrix, adj_matrix
-    ), "Incorrect conversion to adjacency matrix"
+    assert mx.array_equal(expected_binary_matrix, adj_matrix), (
+        "Incorrect conversion to adjacency matrix"
+    )
     expected_matrix = mx.array([[0, 1, 2, 0], [3, 0, 0, 0], [5, 1, 2, 0], [0, 0, 0, 0]])
     weighted_adj_matrix = to_adjacency_matrix(
         edge_index, edge_features=edge_features, num_nodes=num_nodes
     )
-    assert mx.array_equal(
-        expected_matrix, weighted_adj_matrix
-    ), "Incorrect conversion to weighted adjacency matrix"
+    assert mx.array_equal(expected_matrix, weighted_adj_matrix), (
+        "Incorrect conversion to weighted adjacency matrix"
+    )
 
     # 2 nodes (expect error as there are 3 in index)
     with pytest.raises(ValueError):

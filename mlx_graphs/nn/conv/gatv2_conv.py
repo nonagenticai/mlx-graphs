@@ -154,9 +154,7 @@ class GATv2Conv(MessagePassing):
         return mx.expand_dims(alpha, -1) * src_features
 
     def _compute_edge_features(self, edge_features: mx.array):
-        assert all(
-            layer in self for layer in ["edge_lin_proj", "edge_att"]
-        ), """Using
+        assert all(layer in self for layer in ["edge_lin_proj", "edge_att"]), """Using
         edge features, GATConv layer should be provided argument
         `edge_features_dim`."""
 

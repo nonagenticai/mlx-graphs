@@ -189,9 +189,9 @@ class GeneralizedRelationalConv(MessagePassing):
         # input: (bs, num_nodes, dim)
         if self.dependent:
             assert query is not None, "query must be supplied when dependent=True"
-            assert (
-                self.input_dims == 3
-            ), "expected input shape is [batch_size, num_nodes, dim]"
+            assert self.input_dims == 3, (
+                "expected input shape is [batch_size, num_nodes, dim]"
+            )
             # relation features as a projection of input "query" (relation) embeddings
             relation = self.relation_linear(query).reshape(
                 batch_size, self.num_relations, self.in_features_dim
