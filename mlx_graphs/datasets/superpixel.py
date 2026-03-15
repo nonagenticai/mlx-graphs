@@ -7,7 +7,7 @@ import numpy as np
 from tqdm import tqdm
 
 from mlx_graphs.data.data import GraphData
-from mlx_graphs.datasets import Dataset
+from mlx_graphs.datasets.dataset import Dataset
 from mlx_graphs.datasets.utils import download, extract_archive
 from mlx_graphs.utils import pairwise_distances
 

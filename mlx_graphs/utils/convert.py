@@ -2,21 +2,13 @@ from collections import defaultdict
 
 import mlx.core as mx
 
-try:
-    import networkx as nx
-except ImportError:
-    raise ImportError(
-        "networkx is required to convert to/from nextworkx graphs",
-        "run `pip install networkx`",
-    )
-
 from mlx_graphs.data import GraphData
 
 
 def to_networkx(
     data: GraphData,
     remove_self_loops: bool = False,
-) -> nx.DiGraph:
+):
     r"""Converts a :class:`mlx_graphs.data.GraphData` instance to a
     a directed :obj:`networkx.DiGraph` otherwise.
 
@@ -47,6 +39,13 @@ def to_networkx(
         >>> OutEdgeView([(0, 0), (0, 1), (1, 0), (1, 2), (2, 1), (2, 3), (3, 2)])
 
     """
+    try:
+        import networkx as nx
+    except ImportError:
+        raise ImportError(
+            "networkx is required to convert to/from networkx graphs. "
+            "Install it with `pip install networkx`."
+        )
 
     G = nx.DiGraph()
 
@@ -78,7 +77,7 @@ def to_networkx(
     return G
 
 
-def from_networkx(data: nx.Graph) -> GraphData:
+def from_networkx(data) -> GraphData:
     """Converts a :obj:`networkx.Graph` or :obj:`networkx.DiGraph` to a
     :class:`mlx_graphs.data.GraphData` instance.
 
@@ -111,6 +110,14 @@ def from_networkx(data: nx.Graph) -> GraphData:
         >>> 4
 
     """
+    try:
+        import networkx as nx  # noqa: F401
+    except ImportError:
+        raise ImportError(
+            "networkx is required to convert to/from networkx graphs. "
+            "Install it with `pip install networkx`."
+        )
+
     data_dict = defaultdict(list)
 
     edge_index = mx.array(list(data.edges())).T

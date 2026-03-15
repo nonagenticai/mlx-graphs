@@ -63,8 +63,8 @@ class GraphDataBatch(GraphData):
             ]
     """
 
-    def __init__(self, graphs: list[GraphData], **kwargs):
-        batch_kwargs = collate(graphs)
+    def __init__(self, graphs: list[GraphData], pad: bool = False, **kwargs):
+        batch_kwargs = collate(graphs, pad=pad)
         super().__init__(_num_graphs=len(graphs), **batch_kwargs, **kwargs)
 
     @property
@@ -76,6 +76,22 @@ class GraphDataBatch(GraphData):
     def batch_indices(self):
         """Mask indicating for each node its corresponding batch index."""
         return self._batch_indices  # type: ignore - provided via collate
+
+    @property
+    def node_mask(self) -> "mx.array | None":
+        """Boolean mask indicating real (True) vs padded (False) nodes.
+
+        Only available when the batch was created with ``pad=True``.
+        """
+        return getattr(self, "_node_mask", None)
+
+    @property
+    def edge_mask(self) -> "mx.array | None":
+        """Boolean mask indicating real (True) vs padded (False) edges.
+
+        Only available when the batch was created with ``pad=True``.
+        """
+        return getattr(self, "_edge_mask", None)
 
     @overload
     def __getitem__(self, idx: int) -> GraphData: ...
@@ -208,16 +224,18 @@ class GraphDataBatch(GraphData):
         return index_[0] if len(index_) == 1 else index_
 
 
-def batch(graphs: list[GraphData]) -> GraphDataBatch:
+def batch(graphs: list[GraphData], pad: bool = False) -> GraphDataBatch:
     """Constructs a `GraphDataBatch` object from a list of `GraphData`.
 
     Args:
-        batch: List of `GraphData` to merge into a single batch
+        graphs: List of `GraphData` to merge into a single batch
+        pad: If True, pad each graph to uniform node/edge counts so
+            the batch is compatible with ``mx.compile``. Defaults to False.
 
     Returns:
         `GraphDataBatch` storing a large batched graph
     """
-    return GraphDataBatch(graphs)
+    return GraphDataBatch(graphs, pad=pad)
 
 
 def unbatch(batch: GraphDataBatch) -> list[GraphData]:

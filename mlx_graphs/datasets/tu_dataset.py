@@ -129,7 +129,7 @@ def read_tu_data(folder: str, prefix: str) -> list[GraphData]:
     elif edge_attributes is not None:
         edge_features = edge_attributes
     elif edge_labels is not None:
-        edge_features = edge_attributes
+        edge_features = edge_labels
 
     graph_labels = None
     if "graph_attributes" in names:  # Regression problem.

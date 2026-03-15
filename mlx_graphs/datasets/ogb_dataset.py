@@ -5,7 +5,7 @@ import mlx.core as mx
 import numpy as np
 
 from mlx_graphs.data.data import GraphData
-from mlx_graphs.datasets import Dataset
+from mlx_graphs.datasets.dataset import Dataset
 from mlx_graphs.utils import index_to_mask
 
 OGB_NODE_DATASET = Literal[

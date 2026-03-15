@@ -25,6 +25,8 @@ class Dataloader:
     ):
         self.dataset = dataset
         self.batch_size = batch_size
+        if self.batch_size == -1:
+            self.batch_size = len(dataset)
         self.shuffle = shuffle
 
         self._indices = list(range(len(dataset)))

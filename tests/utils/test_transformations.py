@@ -171,6 +171,17 @@ def test_add_self_loops():
     assert mx.array_equal(x, expected_x)
 
 
+def test_add_self_loops_only_existing_nodes():
+    # Graph with nodes 0, 2, 5 (missing 1, 3, 4)
+    edge_index = mx.array([[0, 2], [2, 5]])
+    result = add_self_loops(edge_index, only_existing_nodes=True)
+    # Should only add self-loops for nodes 0, 2, 5
+    self_loops = result[:, 2:]  # after original 2 edges
+    assert self_loops.shape[1] == 3  # 3 unique nodes
+    expected_self_loops = mx.array([[0, 2, 5], [0, 2, 5]])
+    assert mx.array_equal(self_loops, expected_self_loops)
+
+
 def test_remove_self_loops():
     edge_index = mx.array([[0, 0, 1, 1], [0, 1, 0, 2]])
     edge_features = mx.random.normal([4, 2])

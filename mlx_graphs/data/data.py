@@ -49,6 +49,14 @@ class GraphData:
         self.graph_labels = graph_labels
         for key, value in kwargs.items():
             setattr(self, key, value)
+        # Initialize cache last via object.__setattr__ to avoid triggering
+        # our __setattr__ override before _cache exists
+        object.__setattr__(self, "_cache", {})
+
+    def __setattr__(self, name: str, value):
+        super().__setattr__(name, value)
+        if not name.startswith("_") and hasattr(self, "_cache"):
+            self._cache.clear()
 
     def __repr__(self):
         strings = []
@@ -70,16 +78,38 @@ class GraphData:
         Returns:
             A dictionary with all attributes of the `GraphData` object.
         """
-        return {k: v for k, v in self.__dict__.items() if v is not None}
+        return {
+            k: v for k, v in self.__dict__.items() if v is not None and k != "_cache"
+        }
+
+    def forward_dict(self) -> dict:
+        """Returns a dictionary of core attributes for convenient unpacking
+        into conv layer calls.
+
+        Returns:
+            A dictionary with ``edge_index``, ``node_features``, and
+            ``edge_features`` (non-None values only), suitable for
+            ``conv(**graph.forward_dict())``.
+        """
+        d = {"edge_index": self.edge_index}
+        if self.node_features is not None:
+            d["node_features"] = self.node_features
+        if self.edge_features is not None:
+            d["edge_features"] = self.edge_features
+        return d
 
     @property
     def num_nodes(self) -> int:
         """Number of nodes in the graph."""
+        if "num_nodes" in self._cache:
+            return self._cache["num_nodes"]
         if self.node_features is not None:
-            return self.node_features.shape[0]
+            result = self.node_features.shape[0]
         else:
             # NOTE: This may be slow for large graphs
-            return np.unique(np.array(self.edge_index, copy=False)).size
+            result = int(np.array(self.edge_index, copy=False).max()) + 1
+        self._cache["num_nodes"] = result
+        return result
 
     @property
     def num_edges(self) -> int:
@@ -366,13 +396,13 @@ class HeteroGraphData:
             for edge_type, edge_index in self.edge_index_dict.items():
                 src_node_type, _, dst_node_type = edge_type
                 if src_node_type not in num_nodes:
-                    num_nodes[src_node_type] = np.unique(
-                        np.array(edge_index[0], copy=False)
-                    ).size
+                    num_nodes[src_node_type] = (
+                        int(np.array(edge_index[0], copy=False).max()) + 1
+                    )
                 if dst_node_type not in num_nodes:
-                    num_nodes[dst_node_type] = np.unique(
-                        np.array(edge_index[1], copy=False)
-                    ).size
+                    num_nodes[dst_node_type] = (
+                        int(np.array(edge_index[1], copy=False).max()) + 1
+                    )
         return num_nodes
 
     @property

@@ -218,6 +218,7 @@ def add_self_loops(
     num_nodes: Optional[int] = None,
     fill_value: Optional[Union[float, mx.array]] = 1,
     allow_repeated: Optional[bool] = True,
+    only_existing_nodes: bool = False,
 ) -> tuple[mx.array, mx.array]: ...
 
 
@@ -228,6 +229,7 @@ def add_self_loops(
     num_nodes: Optional[int] = None,
     fill_value: Optional[Union[float, mx.array]] = 1,
     allow_repeated: Optional[bool] = True,
+    only_existing_nodes: bool = False,
 ) -> mx.array: ...
 
 
@@ -238,6 +240,7 @@ def add_self_loops(
     num_nodes: Optional[int] = None,
     fill_value: Optional[Union[float, mx.array]] = 1,
     allow_repeated: Optional[bool] = True,
+    only_existing_nodes: bool = False,
 ) -> Union[mx.array, tuple[mx.array, mx.array]]:
     """
     Adds self-loops to the given graph represented by edge_index and edge_features.
@@ -252,6 +255,9 @@ def add_self_loops(
         fill_value: Value used for filling the self-loop features. Default is 1.
         allow_repeated: Specify whether to add self-loops for all nodes, even if they
             are already in the edge_index. Defaults to True.
+        only_existing_nodes: If True, only add self-loops for nodes that actually
+            appear in edge_index, rather than all nodes 0..num_nodes-1. Useful for
+            sparse graphs where node indices are non-contiguous. Defaults to False.
 
     Returns:
         A tuple containing the updated edge_index and edge_features with self-loops.
@@ -268,7 +274,11 @@ def add_self_loops(
         num_nodes = (mx.max(edge_index) + 1).item()
 
     # add self loops to index
-    self_loop_index = mx.repeat(mx.expand_dims(mx.arange(num_nodes), 0), 2, 0)
+    if only_existing_nodes:
+        existing = np.unique(np.array(edge_index.reshape(-1), copy=False))
+        self_loop_index = mx.repeat(mx.expand_dims(mx.array(existing), 0), 2, 0)
+    else:
+        self_loop_index = mx.repeat(mx.expand_dims(mx.arange(num_nodes), 0), 2, 0)
     if not allow_repeated:
         self_loop_index = self_loop_index[
             :, get_unique_edge_indices(self_loop_index, edge_index)
