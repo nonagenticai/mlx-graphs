@@ -68,7 +68,7 @@ class LayerNormalization(nn.Module):
                 features = features / (features.var().sqrt() + self.eps)
             else:
                 if batch_size is None:
-                    batch_size = batch.max().item() + 1
+                    batch_size = int(batch.max().item()) + 1
                 batch_index = batch
                 # try getting degrees of nodes in a batch
                 norm = mx.clip(degree(batch_index), a_min=1, a_max=None)
@@ -78,7 +78,7 @@ class LayerNormalization(nn.Module):
                     scatter(
                         features,
                         batch_index,
-                        batch_index.max().item() + 1,
+                        int(batch_index.max().item()) + 1,
                         aggr="add",
                         axis=0,
                     ).sum(axis=-1, keepdims=True)
@@ -89,7 +89,7 @@ class LayerNormalization(nn.Module):
                 variance = scatter(
                     node_features * node_features,
                     batch_index,
-                    batch_index.max().item() + 1,
+                    int(batch_index.max().item()) + 1,
                     aggr="add",
                     axis=0,
                 ).sum(axis=-1, keepdims=True)

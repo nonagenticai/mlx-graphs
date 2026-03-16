@@ -39,7 +39,12 @@ def test_layer_norm(mode):
     ]
     batch = GraphDataBatch(graphs)
     layer_norm = LayerNormalization(2, affine=False, mode=mode)
+    assert batch.node_features is not None
     assert mx.allclose(
-        mx.array(torch_layer_norm(graph_batch.x, graph_batch.batch).numpy()),
+        mx.array(
+            torch_layer_norm(
+                getattr(graph_batch, "x"), getattr(graph_batch, "batch")
+            ).numpy()
+        ),
         layer_norm(batch.node_features, batch.batch_indices),
     )

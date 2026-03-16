@@ -82,9 +82,9 @@ class TestBasicCorrectness:
             global_id = batch.n_id[i].item()
             expected = data.node_features[global_id]
             actual = batch.node_features[i]
-            assert mx.array_equal(
-                actual, expected
-            ), f"node_features mismatch at local {i} (global {global_id})"
+            assert mx.array_equal(actual, expected), (
+                f"node_features mismatch at local {i} (global {global_id})"
+            )
 
     def test_node_labels_sliced(self):
         data = _make_simple_graph()

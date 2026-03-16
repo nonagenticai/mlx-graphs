@@ -7,7 +7,7 @@ import mlx.core as mx
 import numpy as np
 
 from mlx_graphs.data import HeteroGraphData
-from mlx_graphs.datasets import HeteroDataset
+from mlx_graphs.datasets.hetero_dataset import HeteroDataset
 from mlx_graphs.datasets.utils import download, extract_archive
 
 
@@ -98,7 +98,7 @@ class IMDB(HeteroDataset):
         for name in ["train", "val", "test"]:
             idx = split[f"{name}_idx"]
             idx = mx.array(idx, dtype=mx.int64)
-            mask = mx.zeros(data.num_nodes["movie"], dtype=mx.bool_)  # type: ignore
+            mask = mx.zeros(data.num_nodes["movie"], dtype=mx.bool_)
             mask[idx] = True
             setattr(data, f"movie_{name}_mask", mask)
         s = {}

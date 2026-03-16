@@ -29,6 +29,7 @@ def test_imdb_dataset(tmp_path):
         mx.array(data["movie", "to", "director"].edge_index.tolist()),
     ), "movie director edge index is not equal"
 
+    assert graph.node_features_dict is not None
     assert mx.array_equal(
         graph.node_features_dict["actor"],
         mx.array(data["actor"].x),

@@ -14,11 +14,13 @@ Neural Networks
 	MessagePassing
 	GraphNetworkBlock
 	SimpleConv
+	ChebConv
 	GATConv
 	GATv2Conv
 	GCNConv
 	GINConv
 	SAGEConv
+	TransformerConv
 	GeneralizedRelationalConv
 	BatchNormalization
 	InstanceNormalization
@@ -26,3 +28,4 @@ Neural Networks
 	global_add_pool
 	global_max_pool
 	global_mean_pool
+	TopKPooling

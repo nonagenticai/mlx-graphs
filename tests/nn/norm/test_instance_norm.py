@@ -45,9 +45,14 @@ def test_graph_instance_norm(affine, track_running_stats):
         2, affine=affine, track_running_stats=track_running_stats
     )
 
+    assert batch.node_features is not None
     assert mx.allclose(
         mx.array(
-            torch_instance_norm(graph_batch.x, graph_batch.batch).detach().numpy()
+            torch_instance_norm(
+                getattr(graph_batch, "x"), getattr(graph_batch, "batch")
+            )
+            .detach()
+            .numpy()
         ),
         mlx_instance_norm(batch.node_features, batch.batch_indices),
     ), "The instance normalization is not close"

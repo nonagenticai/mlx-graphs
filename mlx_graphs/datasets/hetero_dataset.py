@@ -118,9 +118,9 @@ class HeteroDataset(BaseDataset):
         indices = range(len(self))
 
         if isinstance(idx, (int, np.integer)) or (
-            isinstance(idx, mx.array) and idx.ndim == 0  # type: ignore
+            isinstance(idx, mx.array) and idx.ndim == 0
         ):
-            index = indices[idx]  # type:ignore - idx here is a singleton
+            index = indices[int(idx)]
             data = self.graphs[index]
 
             if self.transform is not None:
@@ -131,18 +131,18 @@ class HeteroDataset(BaseDataset):
         if isinstance(idx, slice):
             indices = indices[idx]
 
-        elif isinstance(idx, mx.array) and idx.dtype in [  # type: ignore
+        elif isinstance(idx, mx.array) and idx.dtype in [
             mx.int64,
             mx.int32,
             mx.int16,
         ]:
-            return self[idx.flatten().tolist()]  # type: ignore - idx is a mx.array
+            return self[list(idx.flatten().tolist())]  # type: ignore[arg-type]
 
         elif isinstance(idx, np.ndarray) and idx.dtype == np.int64:
-            return self[idx.flatten().tolist()]
+            return self[list(map(int, idx.flat))]
 
         elif isinstance(idx, Sequence) and not isinstance(idx, str):
-            indices = [indices[i] for i in idx]
+            indices = [indices[int(i)] for i in idx]
 
         else:
             raise IndexError(

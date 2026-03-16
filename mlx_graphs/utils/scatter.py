@@ -208,7 +208,7 @@ def degree(
             f"The `degree` function requires a 1D index array, found {index.ndim}."
         )
 
-    num_nodes = num_nodes if num_nodes is not None else index.max().item() + 1
+    num_nodes = num_nodes if num_nodes is not None else int(index.max().item()) + 1
     src = edge_weights if edge_weights is not None else mx.ones((index.shape[0],))
 
     return scatter(src, index, num_nodes, "add")

@@ -41,6 +41,7 @@ def test_dblp_dataset(tmp_path):
         mx.array(data["conference", "to", "paper"].edge_index.tolist()),
     ), "conference paper edge index is not equal"
 
+    assert graph.node_features_dict is not None
     assert mx.array_equal(
         graph.node_features_dict["paper"],
         mx.array(data["paper"].x),

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -9,24 +9,36 @@ from mlx_graphs.utils import get_src_dst_features, scatter
 
 
 class GATv2Conv(MessagePassing):
-    """Graph Attention Network convolution layer with dynamic attention.
+    r"""Graph Attention Network v2 with dynamic attention from `"How Attentive
+    are Graph Attention Networks?" <https://arxiv.org/abs/2105.14491>`_ paper
+    (Brody et al., 2022).
 
-    Modification of GATConv based off of `"How Attentive are Graph Attention
-    Networks?" <https://arxiv.org/abs/2105.14491>`_ paper.
+    Unlike GATConv where attention is static (computed before non-linearity),
+    GATv2 applies the non-linearity before computing attention, enabling
+    dynamic attention that can distinguish between different neighbor nodes:
+
+    .. math::
+        \alpha_{ij} = \frac{\exp(\mathbf{a}^T \text{LeakyReLU}(
+        \mathbf{W}_s \mathbf{x}_i + \mathbf{W}_d \mathbf{x}_j))}
+        {\sum_{k \in \mathcal{N}(i)} \exp(\mathbf{a}^T \text{LeakyReLU}(
+        \mathbf{W}_s \mathbf{x}_i + \mathbf{W}_d \mathbf{x}_k))}
 
     Args:
         node_features_dim: Size of input node features
         out_features_dim: Size of output node embeddings
-        heads: Number of attention heads
-        concat: Whether to use concat of heads or mean reduction
-        bias: Whether to use bias in the node projection
-        negative_slope: Slope for the leaky relu
-        dropout: Probability p for dropout
-        edge_features_dim: Size of edge features
+        heads: Number of attention heads. Default ``1``
+        concat: Whether to use concat of heads or mean reduction. Default ``True``
+        bias: Whether to use bias in the node projection. Default ``True``
+        negative_slope: Slope for the leaky relu. Default ``0.2``
+        dropout: Probability p for dropout. Default ``0.0``
+        edge_features_dim: Size of edge features. Default ``None``
 
     Example:
 
     .. code-block:: python
+
+        import mlx.core as mx
+        from mlx_graphs.nn import GATv2Conv
 
         conv = GATv2Conv(16, 32, heads=2, concat=True)
         edge_index = mx.array([[0, 1, 2, 3, 4], [0, 0, 1, 1, 3]])
@@ -36,7 +48,6 @@ class GATv2Conv(MessagePassing):
 
         >>> h.shape
         [5, 64]
-
     """
 
     def __init__(
@@ -65,7 +76,7 @@ class GATv2Conv(MessagePassing):
 
         # Attention is applied in message() during message passing stage.
         glorot_init = nn.init.glorot_uniform()
-        self.att = glorot_init(mx.zeros((1, heads, out_features_dim)))
+        self.att = glorot_init(mx.zeros((1, heads, out_features_dim)), 1.0)
 
         if bias:
             bias_shape = (heads * out_features_dim) if concat else (out_features_dim)
@@ -78,7 +89,7 @@ class GATv2Conv(MessagePassing):
             self.edge_lin_proj = Linear(
                 edge_features_dim, heads * out_features_dim, bias=False
             )
-            self.edge_att = glorot_init(mx.zeros((1, heads, out_features_dim)))
+            self.edge_att = glorot_init(mx.zeros((1, heads, out_features_dim)), 1.0)
 
     def __call__(
         self,
@@ -131,12 +142,14 @@ class GATv2Conv(MessagePassing):
         self,
         src_features: mx.array,
         dst_features: mx.array,
-        src: mx.array,
-        dst: mx.array,
-        index: mx.array,
-        edge_features: Optional[mx.array] = None,
+        **kwargs: Any,
     ) -> mx.array:
         # Collect alpha before applying non-linearity
+        src: mx.array = kwargs["src"]
+        dst: mx.array = kwargs["dst"]
+        index: mx.array = kwargs["index"]
+        edge_features: mx.array | None = kwargs.get("edge_features", None)
+
         alpha = src + dst
         if edge_features is not None:
             alpha_edge = self._compute_edge_features(edge_features)

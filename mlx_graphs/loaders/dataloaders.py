@@ -25,6 +25,8 @@ class Dataloader:
     ):
         self.dataset = dataset
         self.batch_size = batch_size
+        if self.batch_size == -1:
+            self.batch_size = len(dataset)
         self.shuffle = shuffle
 
         self._indices = list(range(len(dataset)))
@@ -52,11 +54,7 @@ class Dataloader:
         batch_indices = self._indices[
             self._current_index : self._current_index + self.batch_size
         ]
-        batched_data = batch(
-            [
-                self.dataset[i]  # type: ignore - this is a list[GraphData]
-                for i in batch_indices
-            ]
-        )
+        graphs = [self.dataset[i] for i in batch_indices]
+        batched_data = batch(graphs)  # type: ignore
         self._current_index += self.batch_size
         return batched_data

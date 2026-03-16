@@ -5,7 +5,7 @@ import mlx.core as mx
 import numpy as np
 
 from mlx_graphs.data.data import GraphData
-from mlx_graphs.datasets import Dataset
+from mlx_graphs.datasets.dataset import Dataset
 from mlx_graphs.utils import index_to_mask
 
 OGB_NODE_DATASET = Literal[
@@ -52,13 +52,11 @@ ALL_DATASETS = Literal[
 
 
 @overload
-def to_mx_array(x: None) -> None:
-    ...
+def to_mx_array(x: None) -> None: ...
 
 
 @overload
-def to_mx_array(x: np.ndarray) -> mx.array:
-    ...
+def to_mx_array(x: np.ndarray) -> mx.array: ...
 
 
 def to_mx_array(x: Union[np.ndarray, None]) -> Union[mx.array, None]:
@@ -178,7 +176,7 @@ class OGBDataset(Dataset):
                     edge_index=to_mx_array(graph["edge_index"]),
                     node_features=to_mx_array(graph["node_feat"]),
                     edge_features=to_mx_array(graph["edge_feat"]),
-                    node_labels=to_mx_array(label),  # type: ignore
+                    node_labels=to_mx_array(label),
                     train_mask=index_to_mask(to_mx_array(train_idx), size=num_nodes),
                     val_mask=index_to_mask(to_mx_array(val_idx), size=num_nodes),
                     test_mask=index_to_mask(to_mx_array(test_idx), size=num_nodes),
@@ -194,9 +192,9 @@ class OGBDataset(Dataset):
             )
             self.graphs.append(
                 GraphData(
-                    edge_index=to_mx_array(graph["edge_index"]),  # type: ignore
-                    node_features=to_mx_array(graph["node_feat"]),  # type: ignore
-                    edge_features=to_mx_array(graph["edge_feat"]),  # type: ignore
+                    edge_index=to_mx_array(graph["edge_index"]),
+                    node_features=to_mx_array(graph["node_feat"]),
+                    edge_features=to_mx_array(graph["edge_feat"]),
                     train_edge_index=to_mx_array(train_edges),
                     val_edge_index=to_mx_array(val_edges),
                     test_edge_index=to_mx_array(test_edges),
@@ -210,7 +208,7 @@ class OGBDataset(Dataset):
                         edge_index=to_mx_array(graph["edge_index"]),
                         node_features=to_mx_array(graph["node_feat"]),
                         edge_features=to_mx_array(graph["edge_feat"]),
-                        node_labels=to_mx_array(label),  # type: ignore
+                        node_labels=to_mx_array(label),
                     )
                 )
             split_idx: dict = dataset.get_idx_split()  # type: ignore

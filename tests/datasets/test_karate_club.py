@@ -1,5 +1,6 @@
 import pytest
 
+from mlx_graphs.data.data import GraphData
 from mlx_graphs.datasets import KarateClubDataset
 
 
@@ -9,8 +10,11 @@ def test_karate_club_dataset():
     assert d.num_node_classes == 2, "Wrong number of classes"
 
     g = d[0]
+    assert isinstance(g, GraphData)
     assert g.edge_index.shape == (2, 156), "Wrong edge_index shape"
+    assert g.node_features is not None
     assert g.node_features.shape == (34, 1), "Wrong node_features shape"
+    assert g.node_labels is not None
     assert g.node_labels.shape == (34, 1), "Wrong node_labels shape"
 
     # only one graph in the dataset

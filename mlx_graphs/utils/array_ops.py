@@ -66,7 +66,7 @@ def one_hot(labels: mx.array, num_classes: Optional[int] = None) -> mx.array:
         An array of shape [num_elements, num_classes] with one-hot encoded vectors.
     """
     if num_classes is None:
-        num_classes = (labels.max() + 1).item()
+        num_classes = int((labels.max() + 1).item())
 
     shape = (labels.shape[0], num_classes)
     one_hot = mx.zeros(shape)
@@ -114,7 +114,7 @@ def index_to_mask(index: mx.array, size: Optional[int] = None) -> mx.array:
         array([False, True, True, True, False], dtype=bool)
     """
     index = index.reshape(-1)
-    size = index.max().item() + 1 if size is None else size
+    size = int(index.max().item()) + 1 if size is None else size
     mask = mx.zeros(size, dtype=mx.bool_)
     mask[index] = True
     return mask

@@ -7,7 +7,7 @@ import numpy as np
 from tqdm import tqdm
 
 from mlx_graphs.data.data import GraphData
-from mlx_graphs.datasets import Dataset
+from mlx_graphs.datasets.dataset import Dataset
 from mlx_graphs.datasets.utils import download, extract_archive
 from mlx_graphs.utils import pairwise_distances
 
@@ -116,16 +116,10 @@ def adjacency_matrix_to_knn_edges(
 
         # remove self loops
         if num_nodes != 1:
-            knn_values = mx.array(
-                np_adj_mat[knns != np.arange(num_nodes)[:, None]]
-                .reshape(num_nodes, -1)
-                .tolist()
-            )
-            knns = mx.array(
-                np.array(knns, copy=False)[knns != np.arange(num_nodes)[:, None]]
-                .reshape(num_nodes, -1)
-                .tolist()
-            )
+            knns_np = np.array(knns, copy=False)
+            mask = knns_np != np.arange(num_nodes)[:, None]
+            knn_values = mx.array(np_adj_mat[mask].reshape(num_nodes, -1).tolist())
+            knns = mx.array(knns_np[mask].reshape(num_nodes, -1).tolist())
     return knns, knn_values
 
 
@@ -215,7 +209,7 @@ class SuperPixelDataset(Dataset):
             num_nodes = adjacency_matrix.shape[0]
             mean_px = mean_px.reshape(num_nodes, -1)
             coord = coord.reshape(num_nodes, 2)
-            node_features = mx.concatenate((mean_px, coord), axis=1)
+            node_features = mx.concatenate([mean_px, coord], axis=1)
 
             src_nodes = []
             dst_nodes = []

@@ -63,8 +63,8 @@ class GraphDataBatch(GraphData):
             ]
     """
 
-    def __init__(self, graphs: list[GraphData], **kwargs):
-        batch_kwargs = collate(graphs)
+    def __init__(self, graphs: list[GraphData], pad: bool = False, **kwargs):
+        batch_kwargs = collate(graphs, pad=pad)
         super().__init__(_num_graphs=len(graphs), **batch_kwargs, **kwargs)
 
     @property
@@ -77,13 +77,29 @@ class GraphDataBatch(GraphData):
         """Mask indicating for each node its corresponding batch index."""
         return self._batch_indices  # type: ignore - provided via collate
 
-    @overload
-    def __getitem__(self, idx: int) -> GraphData:
-        ...
+    @property
+    def node_mask(self) -> "mx.array | None":
+        """Boolean mask indicating real (True) vs padded (False) nodes.
+
+        Only available when the batch was created with ``pad=True``.
+        """
+        return getattr(self, "_node_mask", None)
+
+    @property
+    def edge_mask(self) -> "mx.array | None":
+        """Boolean mask indicating real (True) vs padded (False) edges.
+
+        Only available when the batch was created with ``pad=True``.
+        """
+        return getattr(self, "_edge_mask", None)
 
     @overload
-    def __getitem__(self, idx: Union[slice, mx.array, list[int]]) -> list[GraphData]:
-        ...
+    def __getitem__(self, idx: int) -> GraphData: ...
+
+    @overload
+    def __getitem__(
+        self, idx: Union[slice, mx.array, list[int]]
+    ) -> list[GraphData]: ...
 
     def __getitem__(
         self, idx: Union[int, slice, mx.array, list[int]]
@@ -111,7 +127,7 @@ class GraphDataBatch(GraphData):
             if isinstance(idx, list):
                 idx = mx.array(idx)
 
-            if idx.ndim != 1:  # type: ignore - idx is a mx.array here
+            if idx.ndim != 1:
                 raise ValueError(
                     "Batch indexing with mx.array only supports 1D index array."
                 )
@@ -170,20 +186,18 @@ class GraphDataBatch(GraphData):
         attr_sizes = self.to_dict()[f"_size_{attr}"]
         cum_attr_counts = mx.cumsum(mx.concatenate([mx.array([0]), attr_sizes]))
 
-        from_idx = cum_attr_counts[idx].item()
-        upto_idx = cum_attr_counts[idx + 1].item()
+        from_idx = int(cum_attr_counts[idx].item())
+        upto_idx = int(cum_attr_counts[idx + 1].item())
 
         return from_idx, upto_idx
 
     @overload
-    def _handle_neg_index_if_needed(self, index: int) -> int:
-        ...
+    def _handle_neg_index_if_needed(self, index: int) -> int: ...
 
     @overload
     def _handle_neg_index_if_needed(
         self, index: Union[mx.array, list[int]]
-    ) -> list[int]:
-        ...
+    ) -> list[int]: ...
 
     def _handle_neg_index_if_needed(
         self, index: Union[mx.array, list[int], int]
@@ -210,16 +224,18 @@ class GraphDataBatch(GraphData):
         return index_[0] if len(index_) == 1 else index_
 
 
-def batch(graphs: list[GraphData]) -> GraphDataBatch:
+def batch(graphs: list[GraphData], pad: bool = False) -> GraphDataBatch:
     """Constructs a `GraphDataBatch` object from a list of `GraphData`.
 
     Args:
-        batch: List of `GraphData` to merge into a single batch
+        graphs: List of `GraphData` to merge into a single batch
+        pad: If True, pad each graph to uniform node/edge counts so
+            the batch is compatible with ``mx.compile``. Defaults to False.
 
     Returns:
         `GraphDataBatch` storing a large batched graph
     """
-    return GraphDataBatch(graphs)
+    return GraphDataBatch(graphs, pad=pad)
 
 
 def unbatch(batch: GraphDataBatch) -> list[GraphData]:
@@ -231,7 +247,4 @@ def unbatch(batch: GraphDataBatch) -> list[GraphData]:
     Returns:
         List of unbatched `GraphData`
     """
-    return [
-        batch[idx]  # type: ignore
-        for idx in range(batch.num_graphs)
-    ]
+    return [batch[idx] for idx in range(batch.num_graphs)]

@@ -145,9 +145,9 @@ class Dataset(BaseDataset):
         indices = range(len(self))
 
         if isinstance(idx, (int, np.integer)) or (
-            isinstance(idx, mx.array) and idx.ndim == 0  # type: ignore
+            isinstance(idx, mx.array) and idx.ndim == 0
         ):
-            index = indices[idx]  # type:ignore - idx here is a singleton
+            index = indices[int(idx)]
             data = self.graphs[index]
 
             if self.transform is not None:
@@ -158,18 +158,18 @@ class Dataset(BaseDataset):
         if isinstance(idx, slice):
             indices = indices[idx]
 
-        elif isinstance(idx, mx.array) and idx.dtype in [  # type: ignore
+        elif isinstance(idx, mx.array) and idx.dtype in [
             mx.int64,
             mx.int32,
             mx.int16,
         ]:
-            return self[idx.flatten().tolist()]  # type: ignore - idx is a mx.array
+            return self[list(idx.flatten().tolist())]  # type: ignore[arg-type]
 
         elif isinstance(idx, np.ndarray) and idx.dtype == np.int64:
-            return self[idx.flatten().tolist()]
+            return self[list(map(int, idx.flat))]
 
         elif isinstance(idx, Sequence) and not isinstance(idx, str):
-            indices = [indices[i] for i in idx]
+            indices = [indices[int(i)] for i in idx]
 
         else:
             raise IndexError(
@@ -183,6 +183,47 @@ class Dataset(BaseDataset):
             graphs = [self.transform(g) for g in graphs]
         dataset.graphs = graphs
         return dataset
+
+    def summary(self) -> str:
+        """Returns a summary table of dataset statistics.
+
+        Includes number of graphs, total/average nodes and edges,
+        feature dimensions, and class counts.
+
+        Returns:
+            A formatted string table with dataset statistics.
+
+        Example:
+
+        .. code-block:: python
+
+            from mlx_graphs.datasets import PlanetoidDataset
+
+            dataset = PlanetoidDataset("Cora")
+            print(dataset.summary())
+        """
+        num_graphs = len(self)
+        total_nodes = sum(g.num_nodes for g in self.graphs)
+        total_edges = sum(g.num_edges for g in self.graphs)
+        avg_nodes = total_nodes / max(num_graphs, 1)
+        avg_edges = total_edges / max(num_graphs, 1)
+
+        lines = [
+            f"Dataset: {self.name}",
+            f"{'Statistic':<25} {'Value':>10}",
+            f"{'-' * 25} {'-' * 10}",
+            f"{'Number of graphs':<25} {num_graphs:>10}",
+            f"{'Total nodes':<25} {total_nodes:>10}",
+            f"{'Total edges':<25} {total_edges:>10}",
+            f"{'Avg nodes/graph':<25} {avg_nodes:>10.1f}",
+            f"{'Avg edges/graph':<25} {avg_edges:>10.1f}",
+            f"{'Node features':<25} {self.num_node_features:>10}",
+            f"{'Edge features':<25} {self.num_edge_features:>10}",
+            f"{'Node classes':<25} {self.num_node_classes:>10}",
+            f"{'Edge classes':<25} {self.num_edge_classes:>10}",
+            f"{'Graph classes':<25} {self.num_graph_classes:>10}",
+        ]
+        return "\n".join(lines)
 
     def __repr__(self):
         return (

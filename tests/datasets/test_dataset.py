@@ -16,7 +16,7 @@ def test_fake_dataset():
         pass
 
     with pytest.raises(TypeError):
-        _ = FakeDataset("fake_dataset")  # type: ignore
+        _ = FakeDataset("fake_dataset")
 
 
 def test_dataset_properties(tmp_path):
@@ -49,11 +49,21 @@ def test_dataset_properties(tmp_path):
     assert dataset.num_graphs == 1
     assert len(dataset) == 1
 
-    assert mx.array_equal(dataset[0].node_features, data.node_features)
-    assert mx.array_equal(dataset[0].edge_labels, data.edge_labels)
+    d0 = dataset[0]
+    assert isinstance(d0, GraphData)
+    assert d0.node_features is not None
+    assert data.node_features is not None
+    assert mx.array_equal(d0.node_features, data.node_features)
+    assert d0.edge_labels is not None
+    assert data.edge_labels is not None
+    assert mx.array_equal(d0.edge_labels, data.edge_labels)
 
-    assert mx.array_equal(dataset[-1].node_features, data.node_features)
-    assert mx.array_equal(dataset[-1].edge_labels, data.edge_labels)
+    dm1 = dataset[-1]
+    assert isinstance(dm1, GraphData)
+    assert dm1.node_features is not None
+    assert mx.array_equal(dm1.node_features, data.node_features)
+    assert dm1.edge_labels is not None
+    assert mx.array_equal(dm1.edge_labels, data.edge_labels)
 
     for seq in [
         dataset[:],
@@ -75,6 +85,7 @@ def test_dataset_properties(tmp_path):
 
     with open(processed_file_name, "rb") as f:
         saved_graphs = pickle.load(f)
+        assert data.node_features is not None
         assert mx.array_equal(saved_graphs[0].node_features, data.node_features)
 
 
@@ -115,6 +126,7 @@ def test_dataset_properties_hetero_graph_data(tmp_path):
     assert heteroGraphDataSet.num_node_features["author"] == 2
     assert heteroGraphDataSet.num_graph_features == 1
     assert heteroGraphDataSet.num_edge_classes[("author", "writes", "paper")] == 2
+    assert heteroGraphDataSet.num_node_classes is not None
     assert heteroGraphDataSet.num_node_classes["author"] == 3
 
     processed_file_name = os.path.join(
@@ -125,6 +137,7 @@ def test_dataset_properties_hetero_graph_data(tmp_path):
     with open(processed_file_name, "rb") as f:
         saved_graphs = pickle.load(f)
         print(saved_graphs[0])
+        assert heteroGraphDataSet.graphs[0].node_features_dict is not None
         assert mx.array_equal(
             saved_graphs[0].node_features_dict["author"],
             heteroGraphDataSet.graphs[0].node_features_dict["author"],
@@ -158,4 +171,6 @@ def test_dataset_transform(tmp_path):
     dataset = Dataset1(custom_transform)
 
     for i in range(len(dataset)):
-        assert dataset[i].feat == "test_transform"
+        item = dataset[i]
+        assert isinstance(item, GraphData)
+        assert getattr(item, "feat") == "test_transform"

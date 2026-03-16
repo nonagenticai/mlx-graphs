@@ -73,9 +73,9 @@ def test_scatter(src, index, num_nodes, aggr, expected):
     y_hat = scatter(src, index, num_nodes, aggr=aggr)
 
     if aggr == "softmax":
-        assert mx.array_equal(
-            mx.round(y_hat, 3), mx.round(expected, 3)
-        ), f"Scatter {aggr} failed"
+        assert mx.array_equal(mx.round(y_hat, 3), mx.round(expected, 3)), (
+            f"Scatter {aggr} failed"
+        )
     else:
         assert mx.array_equal(y_hat, expected), f"Scatter {aggr} failed"
 
@@ -84,12 +84,12 @@ def test_degree():
     index = mx.array([0, 0, 1, 2])
 
     assert mx.array_equal(degree(index, 3), mx.array([2, 1, 1])), "degree failed"
-    assert mx.array_equal(
-        degree(index), mx.array([2, 1, 1])
-    ), "degree with automatic `num_nodes` failed"
-    assert mx.array_equal(
-        degree(index, 4), mx.array([2, 1, 1, 0])
-    ), "degree with missing node failed"
+    assert mx.array_equal(degree(index), mx.array([2, 1, 1])), (
+        "degree with automatic `num_nodes` failed"
+    )
+    assert mx.array_equal(degree(index, 4), mx.array([2, 1, 1, 0])), (
+        "degree with missing node failed"
+    )
 
     index = mx.array([[0, 0, 1, 2], [1, 2, 0, 1]])
 

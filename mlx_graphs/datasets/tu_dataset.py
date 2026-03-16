@@ -129,7 +129,7 @@ def read_tu_data(folder: str, prefix: str) -> list[GraphData]:
     elif edge_attributes is not None:
         edge_features = edge_attributes
     elif edge_labels is not None:
-        edge_features = edge_attributes
+        edge_features = edge_labels
 
     graph_labels = None
     if "graph_attributes" in names:  # Regression problem.
@@ -176,7 +176,8 @@ def split(data: GraphData, batch: mx.array) -> tuple[GraphData, dict]:
     node_slice = mx.concatenate([mx.array([0]), node_slice])
 
     row, _ = data.edge_index  # TODO: make edge_index required
-    edge_slice = mx.cumsum(mx.array(np.bincount(batch[row]), dtype=mx.int32), 0)
+    batch_row = np.array(batch[row], copy=False)
+    edge_slice = mx.cumsum(mx.array(np.bincount(batch_row), dtype=mx.int32), 0)
     edge_slice = mx.concatenate([mx.array([0]), edge_slice])
 
     # Edge indices should start at zero for every graph.
