@@ -60,7 +60,7 @@ def to_edge_index_ROW(
     adjacency_matrix: mx.array, *, dtype: mx.Dtype = mx.uint32
 ) -> mx.array:
     edge_index = mx.stack(
-        [mx.array(x, dtype=dtype) for x in np.nonzero(adjacency_matrix)], axis=1
+        [mx.array(x, dtype=dtype) for x in np.nonzero(np.array(adjacency_matrix, copy=False))], axis=1
     )
     return edge_index
 
@@ -78,7 +78,7 @@ def to_adjacency_matrix_ROW(
     edge_features: Optional[mx.array] = None,
     num_nodes: Optional[int] = None,
 ) -> mx.array:
-    num_nodes = (mx.max(edge_index) + 1).item()
+    num_nodes = int((mx.max(edge_index) + 1).item())
     adjacency_matrix = mx.zeros((num_nodes, num_nodes), dtype=edge_index.dtype)
     if edge_features is None:
         adjacency_matrix[edge_index[:, 0], edge_index[:, 1]] = 1

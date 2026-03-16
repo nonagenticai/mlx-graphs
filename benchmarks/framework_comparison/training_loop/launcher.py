@@ -20,7 +20,7 @@ from utils import to_markdown_table
 import mlx_graphs.datasets as mxg_datasets
 import mlx_graphs.nn as mxg_nn
 
-mx.set_default_device(mx.gpu)
+mx.set_default_device(mx.Device(mx.gpu))
 
 torch.manual_seed(42)
 mx.random.seed(42)

@@ -25,7 +25,7 @@ def global_add_pool(
     if batch_indices is None:
         return node_features.sum(axis=0, keepdims=True)
 
-    out_size = batch_indices.max().item() + 1
+    out_size = int(batch_indices.max().item()) + 1
     return scatter(node_features, batch_indices, out_size=out_size, axis=0, aggr="add")
 
 
@@ -50,7 +50,7 @@ def global_max_pool(
     if batch_indices is None:
         return node_features.max(axis=0, keepdims=True)
 
-    out_size = batch_indices.max().item() + 1
+    out_size = int(batch_indices.max().item()) + 1
     return scatter(node_features, batch_indices, out_size=out_size, axis=0, aggr="max")
 
 
@@ -75,5 +75,5 @@ def global_mean_pool(
     if batch_indices is None:
         return node_features.mean(axis=0, keepdims=True)
 
-    out_size = batch_indices.max().item() + 1
+    out_size = int(batch_indices.max().item()) + 1
     return scatter(node_features, batch_indices, out_size=out_size, axis=0, aggr="mean")

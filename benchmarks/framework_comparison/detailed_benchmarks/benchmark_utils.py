@@ -175,12 +175,12 @@ def run(fn_with_args, args, queue=None):
     # MLX benchmark.
     if args.include_mlx:
         # GPU
-        mx.set_default_device(mx.gpu)
+        mx.set_default_device(mx.Device(mx.gpu))
         mlx_time = fn(framework="mlx", **kwargs)
         times[op_name]["mlx_gpu"] = mlx_time
 
         # CPU
-        mx.set_default_device(mx.cpu)
+        mx.set_default_device(mx.Device(mx.cpu))
         mlx_time = fn(framework="mlx", **kwargs)
         times[op_name]["mlx_cpu"] = mlx_time
 

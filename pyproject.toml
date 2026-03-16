@@ -32,11 +32,11 @@ dev = [
   "pre-commit==3.6.0",
 ]
 test = [
-  "pytest==7.4.4",
-  "scipy==1.12.0",
-  "networkx==3.2.1",
-  "torch==2.2.0",
-  "torch_geometric==2.5.0",
+  "pytest>=9.0.2",
+  "scipy>=1.12.0",
+  "networkx>=3.2.1",
+  "torch>=2.6.0",
+  "torch_geometric>=2.6.0",
 ]
 docs = [
   "ipython==8.21.0",
@@ -47,11 +47,11 @@ docs = [
   "sphinx-gallery==0.15.0",
 ]
 benchmarks = [
-  "scipy==1.12.0",
-  "dgl==2.0.0",
-  "torch==2.2.0",
-  "torch_geometric==2.5.0",
-  "torch_cluster==1.6.3",
+  "scipy>=1.12.0",
+  "dgl>=2.0.0",
+  "torch>=2.6.0",
+  "torch_geometric>=2.6.0",
+  "torch_cluster>=1.6.3",
 ]
 
 [project.urls]
@@ -77,6 +77,9 @@ docstring-code-format = true
 skip_tests = true  # Requires Apple Silicon (MLX) - tests run manually on mini1/mini2
 skip_ty = true  # External repo - not our type errors to fix
 
+[tool.ty.src]
+exclude = ["benchmarks/random_walk_benchmark/"]
+
 [tool.ty.environment]
 python-version = "3.10"
 
@@ -89,6 +92,6 @@ torch-cluster = ["torch"]
 [dependency-groups]
 dev = [
     "detect-secrets>=1.5.0",
-    "ruff>=0.8.0",
-    "ty>=0.0.15",
+    "ruff>=0.15",
+    "ty>=0.0.23",
 ]

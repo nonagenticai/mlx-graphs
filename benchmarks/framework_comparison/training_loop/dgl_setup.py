@@ -63,7 +63,7 @@ def setup_training_dgl(dataset, layer, batch_size, hid_size, compile=True):
         optimizer.zero_grad()
 
     if compile:
-        step = torch.compile(step, dynamic=True)
+        step = torch.compile(step, dynamic=True)  # ty: ignore[invalid-assignment]
 
     return loader, step, None
 

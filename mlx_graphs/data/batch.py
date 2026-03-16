@@ -127,7 +127,7 @@ class GraphDataBatch(GraphData):
             if isinstance(idx, list):
                 idx = mx.array(idx)
 
-            if idx.ndim != 1:  # type: ignore - idx is a mx.array here
+            if idx.ndim != 1:
                 raise ValueError(
                     "Batch indexing with mx.array only supports 1D index array."
                 )
@@ -186,8 +186,8 @@ class GraphDataBatch(GraphData):
         attr_sizes = self.to_dict()[f"_size_{attr}"]
         cum_attr_counts = mx.cumsum(mx.concatenate([mx.array([0]), attr_sizes]))
 
-        from_idx = cum_attr_counts[idx].item()
-        upto_idx = cum_attr_counts[idx + 1].item()
+        from_idx = int(cum_attr_counts[idx].item())
+        upto_idx = int(cum_attr_counts[idx + 1].item())
 
         return from_idx, upto_idx
 
@@ -247,4 +247,4 @@ def unbatch(batch: GraphDataBatch) -> list[GraphData]:
     Returns:
         List of unbatched `GraphData`
     """
-    return [batch[idx] for idx in range(batch.num_graphs)]  # type: ignore
+    return [batch[idx] for idx in range(batch.num_graphs)]

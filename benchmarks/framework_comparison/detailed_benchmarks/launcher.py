@@ -1,6 +1,7 @@
 import platform
 from argparse import ArgumentParser
 from importlib.metadata import version
+from typing import Any
 
 import torch
 from benchmark_layers import (benchmark_GATConv, benchmark_gather,
@@ -60,7 +61,7 @@ if __name__ == "__main__":
                 for shape in shapes:
                     edge_index_shape, node_features_shape = shape
 
-                    op_args = {
+                    op_args: dict[str, Any] = {
                         "edge_index_shape": edge_index_shape,
                         "node_features_shape": node_features_shape,
                     }

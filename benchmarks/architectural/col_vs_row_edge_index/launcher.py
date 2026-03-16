@@ -78,12 +78,12 @@ number_iters = 1000
 number_repeat = 100
 for name, f_N2, arg_N2, f_2N, arg_2N in comparison_list:
     time_N2 = min(
-        timeit.Timer(lambda: f_N2(*arg_N2)).repeat(
+        timeit.Timer(lambda: f_N2(*arg_N2)).repeat(  # ty: ignore[invalid-argument-type]
             repeat=number_repeat, number=number_iters
         )
     )
     time_2N = min(
-        timeit.Timer(lambda: f_2N(*arg_2N)).repeat(
+        timeit.Timer(lambda: f_2N(*arg_2N)).repeat(  # ty: ignore[invalid-argument-type]
             repeat=number_repeat, number=number_iters
         )
     )

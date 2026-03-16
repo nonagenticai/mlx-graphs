@@ -114,7 +114,7 @@ def to_adjacency_matrix(
                 "nodes in index",
             )
     else:
-        num_nodes = (mx.max(edge_index) + 1).item()
+        num_nodes = int((mx.max(edge_index) + 1).item())
 
     if edge_features is not None:
         if edge_features.ndim != 1:
@@ -216,7 +216,7 @@ def add_self_loops(
     edge_index: mx.array,
     edge_features: mx.array,
     num_nodes: Optional[int] = None,
-    fill_value: Optional[Union[float, mx.array]] = 1,
+    fill_value: Union[float, mx.array] = 1,
     allow_repeated: Optional[bool] = True,
     only_existing_nodes: bool = False,
 ) -> tuple[mx.array, mx.array]: ...
@@ -227,7 +227,7 @@ def add_self_loops(
     edge_index: mx.array,
     edge_features=None,
     num_nodes: Optional[int] = None,
-    fill_value: Optional[Union[float, mx.array]] = 1,
+    fill_value: Union[float, mx.array] = 1,
     allow_repeated: Optional[bool] = True,
     only_existing_nodes: bool = False,
 ) -> mx.array: ...
@@ -238,7 +238,7 @@ def add_self_loops(
     edge_index: mx.array,
     edge_features: Optional[mx.array] = None,
     num_nodes: Optional[int] = None,
-    fill_value: Optional[Union[float, mx.array]] = 1,
+    fill_value: Union[float, mx.array] = 1,
     allow_repeated: Optional[bool] = True,
     only_existing_nodes: bool = False,
 ) -> Union[mx.array, tuple[mx.array, mx.array]]:
@@ -271,7 +271,7 @@ def add_self_loops(
                 "nodes in index",
             )
     else:
-        num_nodes = (mx.max(edge_index) + 1).item()
+        num_nodes = int((mx.max(edge_index) + 1).item())
 
     # add self loops to index
     if only_existing_nodes:
@@ -456,7 +456,7 @@ def get_isolated_nodes_mask(
         >>> mx.array([1])
     """
     edge_index = remove_self_loops(edge_index)
-    indices = np.unique(edge_index.reshape(-1))
+    indices = np.unique(np.array(edge_index.reshape(-1), copy=False))
     if complement:
         return mx.array(indices)
 
@@ -484,7 +484,7 @@ def has_isolated_nodes(edge_index: mx.array, num_nodes: int) -> bool:
 
     """
     edge_index = remove_self_loops(edge_index)
-    return np.unique(edge_index.reshape(-1)).size < num_nodes
+    return np.unique(np.array(edge_index.reshape(-1), copy=False)).size < num_nodes
 
 
 @validate_edge_index
@@ -506,4 +506,5 @@ def has_self_loops(edge_index: mx.array) -> bool:
         >>> True
     """
 
-    return ((edge_index[0] == edge_index[1]).sum() > 0).item()
+    eq_mask = mx.array(edge_index[0] == edge_index[1])
+    return bool((eq_mask.sum() > 0).item())

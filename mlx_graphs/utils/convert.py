@@ -67,7 +67,8 @@ def to_networkx(
         G.add_node(i, **node_attrs)
 
     edge_attrs = {}
-    for i, (v, w) in enumerate(data.edge_index.T.tolist()):
+    edge_list: list = data.edge_index.T.tolist()  # type: ignore[assignment]
+    for i, (v, w) in enumerate(edge_list):
         if remove_self_loops and v == w:
             continue
         if data.edge_features is not None:
@@ -80,6 +81,9 @@ def to_networkx(
 def from_networkx(data) -> GraphData:
     """Converts a :obj:`networkx.Graph` or :obj:`networkx.DiGraph` to a
     :class:`mlx_graphs.data.GraphData` instance.
+
+    Handles graphs with non-integer node labels (e.g. strings) by remapping
+    them to contiguous integer indices.
 
     Args:
         data: A networkx graph
@@ -109,6 +113,13 @@ def from_networkx(data) -> GraphData:
         print(mlx_dataset.num_nodes)
         >>> 4
 
+        # Works with string-labeled nodes too
+        G = nx.Graph()
+        G.add_edges_from([("a", "b"), ("b", "c")])
+        mlx_dataset = from_networkx(G)
+        print(mlx_dataset.num_nodes)
+        >>> 3
+
     """
     try:
         import networkx as nx  # noqa: F401
@@ -120,7 +131,15 @@ def from_networkx(data) -> GraphData:
 
     data_dict = defaultdict(list)
 
-    edge_index = mx.array(list(data.edges())).T
+    # Build node mapping to handle non-integer / string labels
+    nodes = list(data.nodes())
+    node_to_idx = {node: i for i, node in enumerate(nodes)}
+
+    edges = [(node_to_idx[u], node_to_idx[v]) for u, v in data.edges()]
+    if edges:
+        edge_index = mx.array(edges).T
+    else:
+        edge_index = mx.zeros((2, 0), dtype=mx.int32)
     data_dict["edge_index"] = edge_index
 
     for attr in ["features", "label"]:
@@ -133,7 +152,9 @@ def from_networkx(data) -> GraphData:
                     if attr in feat_dict:
                         values.append(feat_dict[attr])
             elif entity == "node":
-                for _, feat_dict in data.nodes(data=True):
+                # Iterate in node_to_idx order to match index mapping
+                for node in nodes:
+                    feat_dict = data.nodes[node]
                     if attr in feat_dict:
                         values.append(feat_dict[attr])
             elif entity == "graph" and attr in data.graph:

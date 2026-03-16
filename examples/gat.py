@@ -41,14 +41,16 @@ def loss_fn(y_hat, y, weight_decay=0.0, parameters=None):
     if weight_decay != 0.0:
         assert parameters is not None, "Model parameters missing for L2 reg."
 
-        l2_reg = sum(mx.sum(p[1] ** 2) for p in tree_flatten(parameters))
+        flat = tree_flatten(parameters)
+        assert isinstance(flat, list)
+        l2_reg = sum(mx.sum(mx.array(v) ** 2) for _, v in flat)
         return loss + weight_decay * l2_reg
 
     return loss
 
 
 def eval_fn(x, y):
-    return mx.mean(mx.argmax(x, axis=1) == y)
+    return mx.mean(mx.array(mx.argmax(x, axis=1) == y))
 
 
 def forward_fn(gat, x, adj, y, train_mask, weight_decay):
@@ -82,9 +84,11 @@ def main(args):
     )
     data = dataset[0]
 
-    x, y, adj = data.x, data.y, data.edge_index
+    x, y, adj = data.x, data.y, data.edge_index  # ty: ignore[unresolved-attribute]
     train_mask, val_mask, test_mask = get_masks(
-        data.train_mask, data.val_mask, data.test_mask
+        data.train_mask,  # ty: ignore[unresolved-attribute]
+        data.val_mask,  # ty: ignore[unresolved-attribute]
+        data.test_mask,  # ty: ignore[unresolved-attribute]
     )
 
     x, y, adj, train_mask, val_mask, test_mask = to_mlx(

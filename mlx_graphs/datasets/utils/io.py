@@ -11,7 +11,7 @@ def is_floating_point(dtype: mx.Dtype) -> bool:
 
 def parse_txt_array(
     src: list[str],
-    sep: str,
+    sep: Optional[str],
     dtype: mx.Dtype,
     start: int = 0,
     end: Optional[int] = None,
@@ -25,7 +25,7 @@ def parse_txt_array(
 def read_txt_array(
     path: str,
     dtype: mx.Dtype,
-    sep: str = None,
+    sep: Optional[str] = None,
     start: int = 0,
     end: Optional[int] = None,
 ) -> mx.array:

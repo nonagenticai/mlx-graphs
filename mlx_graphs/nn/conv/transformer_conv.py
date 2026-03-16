@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -154,13 +154,15 @@ class TransformerConv(MessagePassing):
         self,
         src_features: mx.array,
         dst_features: mx.array,
-        src_key: mx.array,
-        src_value: mx.array,
-        dst_query: mx.array,
-        index: mx.array,
-        edge_features: Optional[mx.array] = None,
+        **kwargs: Any,
     ) -> mx.array:
         """Compute attention-weighted messages."""
+        src_key: mx.array = kwargs["src_key"]
+        src_value: mx.array = kwargs["src_value"]
+        dst_query: mx.array = kwargs["dst_query"]
+        index: mx.array = kwargs["index"]
+        edge_features: mx.array | None = kwargs.get("edge_features", None)
+
         # Add edge features to key and value if provided
         if edge_features is not None and "W_edge" in self:
             edge_proj = self.W_edge(edge_features).reshape(

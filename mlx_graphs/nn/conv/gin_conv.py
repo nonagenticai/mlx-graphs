@@ -97,6 +97,9 @@ class GINConv(MessagePassing):
         self.eps = mx.array([eps]) if learn_eps else eps
 
         if edge_features_dim is not None:
+            assert node_features_dim is not None, (
+                "node_features_dim is required when edge_features_dim is set"
+            )
             self.edge_projection = Linear(
                 edge_features_dim, node_features_dim, bias=True
             )
@@ -119,14 +122,15 @@ class GINConv(MessagePassing):
         Returns:
             The computed node embeddings
         """
+        node_feat_pair: tuple[mx.array, mx.array] | mx.array = node_features
         if isinstance(node_features, mx.array):
-            node_features = (node_features, node_features)
+            node_feat_pair = (node_features, node_features)
 
-        dst_features = node_features[1]
+        dst_features = node_feat_pair[1]
 
         aggr_features = self.propagate(
             edge_index=edge_index,
-            node_features=node_features,
+            node_features=node_feat_pair,
             message_kwargs={
                 "edge_weights": edge_weights,
                 "edge_features": edge_features,

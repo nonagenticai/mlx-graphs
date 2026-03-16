@@ -62,7 +62,7 @@ def to_edge_index_COL(
     adjacency_matrix: mx.array, *, dtype: mx.Dtype = mx.uint32
 ) -> mx.array:
     edge_index = mx.stack(
-        [mx.array(x, dtype=dtype) for x in np.nonzero(adjacency_matrix)]
+        [mx.array(x, dtype=dtype) for x in np.nonzero(np.array(adjacency_matrix, copy=False))]
     )
     return edge_index
 
@@ -80,7 +80,7 @@ def to_adjacency_matrix_COL(
     edge_features: Optional[mx.array] = None,
     num_nodes: Optional[int] = None,
 ) -> mx.array:
-    num_nodes = (mx.max(edge_index) + 1).item()
+    num_nodes = int((mx.max(edge_index) + 1).item())
     adjacency_matrix = mx.zeros((num_nodes, num_nodes), dtype=edge_index.dtype)
     if edge_features is None:
         adjacency_matrix[edge_index[0], edge_index[1]] = 1

@@ -15,7 +15,7 @@ from utils import to_markdown_table
 
 import mlx_graphs.datasets as mxg_datasets
 
-mx.set_default_device(mx.gpu)
+mx.set_default_device(mx.Device(mx.gpu))
 
 torch.manual_seed(42)
 mx.random.seed(42)
@@ -46,7 +46,7 @@ def benchmark(framework, edge_index, start_indices, walk_length, compile=None):
     randomwalks(edge_index, start_indices, walk_length, compile)
 
 
-loader = DataLoader(range(2708), batch_size=2000)
+loader = DataLoader(range(2708), batch_size=2000)  # ty: ignore[invalid-argument-type]
 start_indices = next(iter(loader))
 
 results = [["Framework", "Time"]]
@@ -57,7 +57,7 @@ for framework in tqdm(FRAMEWORKS):
         if framework == "mxg":
             edge_index = dataset.graphs[0].edge_index
         else:
-            edge_index = dataset.edge_index
+            edge_index = dataset.edge_index  # ty: ignore[unresolved-attribute]
 
         times = timeit.Timer(
             lambda: benchmark(

@@ -2,7 +2,7 @@ import itertools
 import math
 import random
 from multiprocessing import Process, Queue
-from typing import Iterator
+from typing import Any, Iterator
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -193,7 +193,7 @@ def handle_model(
         preds = mx.concat(preds, axis=0)
         trues = mx.concat(trues, axis=0)
 
-        acc = (preds == trues).sum() / preds.shape[0]
+        acc = mx.array(preds == trues).sum() / preds.shape[0]
         pbar.set_postfix({"acc": f"{acc.item():.3f}", "loss": f"{np.mean(losses):.3f}"})
         yield acc
 
@@ -219,7 +219,7 @@ def run_example():
     processes = []
     accuracies = {"GATv1": [], "GATv2": []}
 
-    models_args = [
+    models_args: list[dict[str, Any]] = [
         {
             "name": "GATv1",
             "model": Model(k, dynamic_attention=False),

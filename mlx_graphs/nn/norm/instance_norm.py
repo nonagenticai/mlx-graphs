@@ -73,7 +73,7 @@ class InstanceNormalization(nn.Module):
             )
 
         if batch_size is None:
-            batch_size = batch.max().item() + 1
+            batch_size = int(batch.max().item()) + 1
 
         mean = var = unbiased_var = node_features
         if self.training or not self.track_running_stats:
@@ -85,7 +85,7 @@ class InstanceNormalization(nn.Module):
                 scatter(
                     node_features,
                     batch,
-                    batch.max().item() + 1,
+                    int(batch.max().item()) + 1,
                     aggr="add",
                     axis=0,
                 )
@@ -96,7 +96,7 @@ class InstanceNormalization(nn.Module):
             var = scatter(
                 node_features * node_features,
                 batch,
-                batch.max().item() + 1,
+                int(batch.max().item()) + 1,
                 aggr="add",
                 axis=0,
             )

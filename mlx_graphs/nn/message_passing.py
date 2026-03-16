@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Tuple, Union, get_args
+from typing import Any, Dict, Tuple, Union, get_args
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -40,9 +40,9 @@ class MessagePassing(nn.Module):
         self,
         edge_index: mx.array,
         node_features: Union[mx.array, Tuple[mx.array, mx.array]],
-        message_kwargs: Optional[Dict] = {},
-        aggregate_kwargs: Optional[Dict] = {},
-        update_kwargs: Optional[Dict] = {},
+        message_kwargs: Dict = {},
+        aggregate_kwargs: Dict = {},
+        update_kwargs: Dict = {},
     ) -> mx.array:
         """Computes messages from neighbors, aggregates them and updates
         the final node embeddings.

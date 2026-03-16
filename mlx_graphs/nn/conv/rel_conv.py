@@ -1,4 +1,4 @@
-from typing import Literal, Optional, get_args
+from typing import Any, Literal, Optional, get_args
 
 import mlx.core as mx
 from mlx import nn
@@ -228,11 +228,13 @@ class GeneralizedRelationalConv(MessagePassing):
         self,
         src_features: mx.array,
         dst_features: mx.array,
-        relation: mx.array,
-        boundary: mx.array,
-        edge_type: mx.array,
+        **kwargs: Any,
     ) -> mx.array:
         # extracting relation features
+        relation: mx.array = kwargs["relation"]
+        boundary: mx.array = kwargs["boundary"]
+        edge_type: mx.array = kwargs["edge_type"]
+
         relation_j = relation[:, edge_type]
 
         if self.input_dims == 3:
@@ -264,9 +266,11 @@ class GeneralizedRelationalConv(MessagePassing):
         self,
         messages: mx.array,
         indices: mx.array,
-        edge_weights: mx.array,
-        dim_size: tuple[int, int],
+        **kwargs: Any,
     ) -> mx.array:
+        edge_weights: mx.array = kwargs["edge_weights"]
+        dim_size: tuple[int, int] = kwargs["dim_size"]
+
         # augment aggregation index with self-loops for the boundary condition
         index = mx.concatenate(
             [indices, mx.arange(dim_size[0])]
@@ -334,7 +338,7 @@ class GeneralizedRelationalConv(MessagePassing):
                 index,
                 axis=self.node_dim,
                 out_size=dim_size[0],
-                aggr=self.aggregate_func,  # type: ignore - it's either "add" or "mean"
+                aggr=self.aggregate_func,
             )
 
         return output
@@ -342,8 +346,9 @@ class GeneralizedRelationalConv(MessagePassing):
     def update_nodes(
         self,
         aggregated: mx.array,
-        old: mx.array,
+        **kwargs: Any,
     ) -> mx.array:
+        old: mx.array = kwargs["old"]
         # node update: a function of old states (old) and layer's output (aggregated)
         output = self.linear(mx.concatenate([old, aggregated], axis=-1))
         if self.layer_norm:

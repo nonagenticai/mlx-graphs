@@ -20,6 +20,7 @@ def test_batching():
     )
 
     # Batch default collating
+    assert graph_batch.node_features is not None
     assert mx.array_equal(
         graph_batch.node_features,
         mx.concatenate([node_features1, node_features2], axis=0),
@@ -35,9 +36,11 @@ def test_batching():
     assert mx.array_equal(graph_batch[1].edge_index, edge_index2), (
         "Simple batch indexing with node features failed"
     )
+    assert graph_batch[0].node_features is not None
     assert mx.array_equal(graph_batch[0].node_features, node_features1), (
         "Simple batch indexing with edge_index failed"
     )
+    assert graph_batch[1].node_features is not None
     assert mx.array_equal(graph_batch[1].node_features, node_features2), (
         "Simple batch indexing with node features failed"
     )
@@ -61,13 +64,13 @@ def test_batching():
     graph_batch = batch([g1, g2])
 
     assert mx.array_equal(
-        graph_batch.custom_attr,
+        getattr(graph_batch, "custom_attr"),
         mx.concatenate([custom_attr1D_1, custom_attr1D_2], axis=0),
     ), "Batch default indexing with custom attribute 1D failed"
-    assert mx.array_equal(graph_batch[0].custom_attr, custom_attr1D_1), (
+    assert mx.array_equal(getattr(graph_batch[0], "custom_attr"), custom_attr1D_1), (
         "Batch default indexing with custom attribute 1D failed"
     )
-    assert mx.array_equal(graph_batch[1].custom_attr, custom_attr1D_2), (
+    assert mx.array_equal(getattr(graph_batch[1], "custom_attr"), custom_attr1D_2), (
         "Batch default indexing with custom attribute 1D failed"
     )
 
@@ -88,13 +91,13 @@ def test_batching():
     graph_batch = batch([g1, g2])
 
     assert mx.array_equal(
-        graph_batch.custom_attr,
+        getattr(graph_batch, "custom_attr"),
         mx.concatenate([custom_attr2D_1, custom_attr2D_2], axis=0),
     ), "Batch default indexing with custom attribute 2D failed"
-    assert mx.array_equal(graph_batch[0].custom_attr, custom_attr2D_1), (
+    assert mx.array_equal(getattr(graph_batch[0], "custom_attr"), custom_attr2D_1), (
         "Batch default indexing with custom attribute 2D failed"
     )
-    assert mx.array_equal(graph_batch[1].custom_attr, custom_attr2D_2), (
+    assert mx.array_equal(getattr(graph_batch[1], "custom_attr"), custom_attr2D_2), (
         "Batch default indexing with custom attribute 2D failed"
     )
 
@@ -106,13 +109,14 @@ def test_batching():
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 
-        def __cat_dim__(self, key):
+        def __cat_dim__(self, key, *args, **kwargs):
             if key == "custom_attr" or "index" in key:
                 return 1
             return 0
 
-        def __inc__(self, key):
+        def __inc__(self, key, *args, **kwargs):
             if key == "custom_attr" or "index" in key:
+                assert self.node_features is not None
                 return len(self.node_features)
             return None
 
@@ -127,13 +131,13 @@ def test_batching():
     expect = mx.concatenate([custom_attr_1, custom_attr_2], axis=1)
     expect[:, 2:] += len(node_features1)
 
-    assert mx.array_equal(graph_batch.custom_attr, expect), (
+    assert mx.array_equal(getattr(graph_batch, "custom_attr"), expect), (
         "Batch with custom __cat_dim__ and __inc__ failed"
     )
-    assert mx.array_equal(graph_batch[0].custom_attr, custom_attr_1), (
+    assert mx.array_equal(getattr(graph_batch[0], "custom_attr"), custom_attr_1), (
         "Batch indexing with custom __cat_dim__ and __inc__ failed"
     )
-    assert mx.array_equal(graph_batch[1].custom_attr, custom_attr_2), (
+    assert mx.array_equal(getattr(graph_batch[1], "custom_attr"), custom_attr_2), (
         "Batch indexing with custom __cat_dim__ and __inc__ failed"
     )
 
@@ -147,15 +151,19 @@ def test_batching():
 
     graph_batch = batch(graphs)
 
+    b_last = graph_batch[-1]
+    assert b_last.node_features is not None
     assert mx.array_equal(
-        graph_batch[-1].node_features, mock_node_features * 99
-    ) and mx.array_equal(graph_batch[-1].edge_index, mock_edge_index * 99), (
+        b_last.node_features, mock_node_features * 99
+    ) and mx.array_equal(b_last.edge_index, mock_edge_index * 99), (
         "Batch backward indexing failed"
     )
 
+    b_mid = graph_batch[-50]
+    assert b_mid.node_features is not None
     assert mx.array_equal(
-        graph_batch[-50].node_features, mock_node_features * 50
-    ) and mx.array_equal(graph_batch[-50].edge_index, mock_edge_index * 50), (
+        b_mid.node_features, mock_node_features * 50
+    ) and mx.array_equal(b_mid.edge_index, mock_edge_index * 50), (
         "Batch backward indexing failed"
     )
 
@@ -173,7 +181,8 @@ def test_batching():
 
     assert all(
         [
-            mx.array_equal(b.node_features, mock_node_features * i)
+            b.node_features is not None
+            and mx.array_equal(b.node_features, mock_node_features * i)
             and mx.array_equal(b.edge_index, mock_edge_index * i)
             for i, b in enumerate(graph_batch[:10])
         ]
@@ -181,7 +190,8 @@ def test_batching():
 
     assert all(
         [
-            mx.array_equal(b.node_features, mock_node_features * (i + 10))
+            b.node_features is not None
+            and mx.array_equal(b.node_features, mock_node_features * (i + 10))
             and mx.array_equal(b.edge_index, mock_edge_index * (i + 10))
             for i, b in enumerate(graph_batch[10:20])
         ]
@@ -189,7 +199,8 @@ def test_batching():
 
     assert all(
         [
-            mx.array_equal(b.node_features, mock_node_features * (i + 90))
+            b.node_features is not None
+            and mx.array_equal(b.node_features, mock_node_features * (i + 90))
             and mx.array_equal(b.edge_index, mock_edge_index * (i + 90))
             for i, b in enumerate(graph_batch[90:])
         ]
@@ -197,7 +208,8 @@ def test_batching():
 
     assert all(
         [
-            mx.array_equal(b.node_features, mock_node_features * (i + 80))
+            b.node_features is not None
+            and mx.array_equal(b.node_features, mock_node_features * (i + 80))
             and mx.array_equal(b.edge_index, mock_edge_index * (i + 80))
             for i, b in enumerate(graph_batch[80:-10])
         ]
@@ -205,7 +217,8 @@ def test_batching():
 
     assert all(
         [
-            mx.array_equal(b.node_features, mock_node_features * (i + 90))
+            b.node_features is not None
+            and mx.array_equal(b.node_features, mock_node_features * (i + 90))
             and mx.array_equal(b.edge_index, mock_edge_index * (i + 90))
             for i, b in enumerate(graph_batch[-10:])
         ]
@@ -213,15 +226,18 @@ def test_batching():
 
     assert all(
         [
-            mx.array_equal(b.node_features, mock_node_features * (i * 2))
+            b.node_features is not None
+            and mx.array_equal(b.node_features, mock_node_features * (i * 2))
             and mx.array_equal(b.edge_index, mock_edge_index * (i * 2))
             for i, b in enumerate(graph_batch[:10:2])
         ]
     ), "Batch slicing attributes with loop jump failed"
 
-    assert mx.array_equal(
-        graph_batch[98:][-1].node_features, mock_node_features * 99
-    ), "Batch indexing with last index failed"
+    b_tail = graph_batch[98:][-1]
+    assert b_tail.node_features is not None
+    assert mx.array_equal(b_tail.node_features, mock_node_features * 99), (
+        "Batch indexing with last index failed"
+    )
 
     with pytest.raises(IndexError):
         graph_batch[:101]
@@ -263,7 +279,7 @@ def test_batching():
 
         g1 = GraphData(node_features=node_features1, edge_index=edge_index1)
         g2 = Data(node_features=node_features2, edge_index=edge_index2)
-        graph_batch = batch([g1, g2])
+        graph_batch = batch([g1, g2])  # type: ignore[arg-type]
 
     # Batch indices
     g1 = GraphData(node_features=node_features1, edge_index=edge_index1)
@@ -285,12 +301,15 @@ def test_batching():
     indices = [0, 1, 1]
     sliced = graph_batch[indices]
 
+    assert sliced[0].node_features is not None
     assert mx.array_equal(sliced[0].node_features, node_features1) and mx.array_equal(
         sliced[0].edge_index, edge_index1
     ), "Batch slicing with list failed"
+    assert sliced[1].node_features is not None
     assert mx.array_equal(sliced[1].node_features, node_features2) and mx.array_equal(
         sliced[1].edge_index, edge_index2
     ), "Batch slicing with list failed"
+    assert sliced[2].node_features is not None
     assert mx.array_equal(sliced[2].node_features, node_features2) and mx.array_equal(
         sliced[2].edge_index, edge_index2
     ), "Batch slicing with list failed"
@@ -298,12 +317,15 @@ def test_batching():
     indices = mx.array([0, 1, 1])
     sliced = graph_batch[indices]
 
+    assert sliced[0].node_features is not None
     assert mx.array_equal(sliced[0].node_features, node_features1) and mx.array_equal(
         sliced[0].edge_index, edge_index1
     ), "Batch slicing with list failed"
+    assert sliced[1].node_features is not None
     assert mx.array_equal(sliced[1].node_features, node_features2) and mx.array_equal(
         sliced[1].edge_index, edge_index2
     ), "Batch slicing with list failed"
+    assert sliced[2].node_features is not None
     assert mx.array_equal(sliced[2].node_features, node_features2) and mx.array_equal(
         sliced[2].edge_index, edge_index2
     ), "Batch slicing with list failed"
@@ -311,9 +333,11 @@ def test_batching():
     indices = mx.array([-1, -2])
     sliced = graph_batch[indices]
 
+    assert sliced[0].node_features is not None
     assert mx.array_equal(sliced[0].node_features, node_features2) and mx.array_equal(
         sliced[0].edge_index, edge_index2
     ), "Batch slicing with list failed"
+    assert sliced[1].node_features is not None
     assert mx.array_equal(sliced[1].node_features, node_features2) and mx.array_equal(
         sliced[1].edge_index, edge_index2
     ), "Batch slicing with list failed"

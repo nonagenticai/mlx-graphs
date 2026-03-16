@@ -110,7 +110,7 @@ class DBLP(HeteroDataset):
         for name in ["train", "val", "test"]:
             idx = split[f"{name}_idx"]
             idx = mx.array(idx, dtype=mx.int64)
-            mask = mx.zeros(data.num_nodes["author"], dtype=mx.bool_)  # type: ignore
+            mask = mx.zeros(data.num_nodes["author"], dtype=mx.bool_)
             mask[idx] = True
             setattr(data, f"author_{name}_mask", mask)
 

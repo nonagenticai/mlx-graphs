@@ -29,6 +29,8 @@ class GraphData:
         **kwargs: Additional keyword arguments to store any other custom attributes.
     """
 
+    _cache: dict
+
     def __init__(
         self,
         edge_index: mx.array,
@@ -53,7 +55,7 @@ class GraphData:
         # our __setattr__ override before _cache exists
         object.__setattr__(self, "_cache", {})
 
-    def __setattr__(self, name: str, value):
+    def __setattr__(self, name: str, value: Any) -> None:
         super().__setattr__(name, value)
         if not name.startswith("_") and hasattr(self, "_cache"):
             self._cache.clear()
@@ -506,7 +508,7 @@ class HeteroGraphData:
             is_undirected(
                 self.edge_index_dict[edge_type],
                 (
-                    self.edge_features_dict.get(edge_type, None)  # type: ignore
+                    self.edge_features_dict.get(edge_type, None)
                     if self.edge_features_dict
                     else None
                 ),

@@ -5,7 +5,7 @@ import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 
-from mlx_graphs.datasets import TUDataset
+from mlx_graphs.datasets import Dataset, TUDataset
 from mlx_graphs.loaders import Dataloader
 from mlx_graphs.nn import GCNConv, Linear, global_mean_pool
 
@@ -13,7 +13,7 @@ BATCH_SIZE = 64
 DATASET = "NCI-H23H"
 SPLIT = 35_000
 
-mx.set_default_device(mx.gpu)
+mx.set_default_device(mx.Device(mx.gpu))
 mx.random.seed(42)
 
 
@@ -46,7 +46,7 @@ def loss_fn(y_hat, y, parameters=None):
 
 
 def eval_fn(y_hat, y):
-    return mx.mean(mx.argmax(y_hat, axis=1) == y)
+    return mx.mean(mx.array(mx.argmax(y_hat, axis=1) == y))
 
 
 def forward_fn(model, graph, labels):
@@ -60,6 +60,8 @@ dataset = TUDataset(DATASET)
 print("Done ...")
 train_dataset = dataset[:SPLIT]
 test_dataset = dataset[SPLIT:]
+assert isinstance(train_dataset, Dataset)
+assert isinstance(test_dataset, Dataset)
 
 train_loader = Dataloader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 test_loader = Dataloader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)

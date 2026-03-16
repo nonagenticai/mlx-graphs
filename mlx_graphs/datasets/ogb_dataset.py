@@ -176,7 +176,7 @@ class OGBDataset(Dataset):
                     edge_index=to_mx_array(graph["edge_index"]),
                     node_features=to_mx_array(graph["node_feat"]),
                     edge_features=to_mx_array(graph["edge_feat"]),
-                    node_labels=to_mx_array(label),  # type: ignore
+                    node_labels=to_mx_array(label),
                     train_mask=index_to_mask(to_mx_array(train_idx), size=num_nodes),
                     val_mask=index_to_mask(to_mx_array(val_idx), size=num_nodes),
                     test_mask=index_to_mask(to_mx_array(test_idx), size=num_nodes),
@@ -192,9 +192,9 @@ class OGBDataset(Dataset):
             )
             self.graphs.append(
                 GraphData(
-                    edge_index=to_mx_array(graph["edge_index"]),  # type: ignore
-                    node_features=to_mx_array(graph["node_feat"]),  # type: ignore
-                    edge_features=to_mx_array(graph["edge_feat"]),  # type: ignore
+                    edge_index=to_mx_array(graph["edge_index"]),
+                    node_features=to_mx_array(graph["node_feat"]),
+                    edge_features=to_mx_array(graph["edge_feat"]),
                     train_edge_index=to_mx_array(train_edges),
                     val_edge_index=to_mx_array(val_edges),
                     test_edge_index=to_mx_array(test_edges),
@@ -208,7 +208,7 @@ class OGBDataset(Dataset):
                         edge_index=to_mx_array(graph["edge_index"]),
                         node_features=to_mx_array(graph["node_feat"]),
                         edge_features=to_mx_array(graph["edge_feat"]),
-                        node_labels=to_mx_array(label),  # type: ignore
+                        node_labels=to_mx_array(label),
                     )
                 )
             split_idx: dict = dataset.get_idx_split()  # type: ignore

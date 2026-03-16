@@ -9,6 +9,6 @@ def torch_cluster_random_walk(edge_index, start_indices, walk_length, compile=Tr
     row, col = sort_edge_index(edge_index=edge_index, num_nodes=num_nodes)
     row_ptr, col = index2ptr(row, num_nodes), col
     random_walks = torch.ops.torch_cluster.random_walk(
-        row_ptr, col, start_indices, walk_length, 1.0, 1.0
+        row_ptr, col, start_indices, walk_length, 1.0, 1.0  # ty: ignore[invalid-argument-type]
     )
     return random_walks

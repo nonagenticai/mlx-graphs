@@ -51,7 +51,7 @@ class TopKPooling(nn.Module):
 
         # Learnable projection vector
         glorot_init = nn.init.glorot_uniform()
-        self.weight = glorot_init(mx.zeros((1, in_channels)))
+        self.weight = glorot_init(mx.zeros((1, in_channels)), 1.0)
 
         if nonlinearity == "tanh":
             self.nonlinearity = mx.tanh
@@ -120,10 +120,12 @@ class TopKPooling(nn.Module):
 
         # Filter edges: keep only edges where BOTH src and dst are in perm
         # Build a mapping from old node indices to new indices
-        # Create a lookup array: -1 for removed nodes, new index for kept nodes
+        # Stop gradient on index operations (not differentiable)
+        perm_sg = mx.stop_gradient(perm)
         node_map = mx.full((num_nodes,), -1, dtype=mx.int32)
         new_indices = mx.arange(k, dtype=mx.int32)
-        node_map = node_map.at[perm].add(new_indices + 1)  # +1 to distinguish from -1
+        # +1 to distinguish from -1 (unmapped)
+        node_map = node_map.at[perm_sg].add(new_indices + 1)
 
         src_mapped = node_map[edge_index[0]]
         dst_mapped = node_map[edge_index[1]]

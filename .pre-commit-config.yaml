@@ -5,7 +5,7 @@
 repos:
   # Ruff - extremely fast Python linter (replaces flake8, isort, etc.)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.4
+    rev: v0.15.6
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
@@ -46,7 +46,7 @@ repos:
     hooks:
       - id: ty
         name: ty type checking
-        entry: uv run ty check src/
+        entry: uv run ty check mlx_graphs/
         language: system
         types: [python]
         pass_filenames: false
@@ -54,7 +54,7 @@ repos:
 
       - id: pytest-unit
         name: pytest unit tests
-        entry: uv run pytest tests/unit -v --tb=short -x
+        entry: uv run pytest tests/ --ignore=tests/algorithms --ignore=tests/nn/norm --ignore=tests/datasets -v --tb=short -x
         language: system
         types: [python]
         pass_filenames: false

@@ -82,7 +82,8 @@ class PlanetoidDataset(Dataset):
         without_self_loops: bool = True,
         base_dir: Optional[str] = None,
     ):
-        name, self.split = name.lower(), split.lower()
+        name = name.lower()  # type: ignore[assignment]
+        self.split = split.lower()
         self.without_self_loops = without_self_loops
 
         assert name in get_args(PLANETOID_NAMES), "Invalid dataset name"
@@ -91,8 +92,8 @@ class PlanetoidDataset(Dataset):
         super().__init__(name=name, base_dir=base_dir)
 
         if self.split == "full":
-            data = self[0]
-            data.train_mask = mx.where(data.val_mask | data.test_mask, False, True)
+            data = self.graphs[0]
+            data.train_mask = mx.where(data.val_mask | data.test_mask, False, True)  # type: ignore[union-attr]
 
     @property
     def raw_path(self) -> str:
@@ -164,7 +165,7 @@ def read_planetoid_data(
         # There are some isolated nodes in the Citeseer graph, resulting in
         # none consecutive test indices. We need to identify them and add them
         # as zero vectors to `tx` and `ty`.
-        len_test_indices = (test_index.max() - test_index.min()).item() + 1
+        len_test_indices = int((test_index.max() - test_index.min()).item()) + 1
 
         tx_ext = mx.zeros((len_test_indices, tx.shape[1]), dtype=tx.dtype)
         tx_ext[sorted_test_index - test_index.min(), :] = tx
@@ -183,8 +184,9 @@ def read_planetoid_data(
     val_mask = index_to_mask(val_index, size=y.shape[0])
     test_mask = index_to_mask(test_index, size=y.shape[0])
 
+    graph_dict: dict[int, list[int]] = graph  # type: ignore[assignment]
     edge_index = edge_index_from_dict(
-        graph_dict=graph,
+        graph_dict=graph_dict,
         num_nodes=y.shape[0],
         without_self_loops=without_self_loops,
     )

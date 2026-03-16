@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -9,21 +9,37 @@ from mlx_graphs.utils import get_src_dst_features, scatter
 
 
 class GATConv(MessagePassing):
-    """Graph Attention Network convolution layer.
+    r"""Graph Attention Network convolution layer from `"Graph Attention
+    Networks" <https://arxiv.org/abs/1710.10903>`_ paper (Velickovic et al., 2018).
+
+    .. math::
+        \mathbf{h}_i = \sum_{j \in \mathcal{N}(i)} \alpha_{ij}
+        \mathbf{W} \mathbf{x}_j
+
+    where the attention coefficients :math:`\alpha_{ij}` are computed as:
+
+    .. math::
+        \alpha_{ij} = \frac{\exp(\text{LeakyReLU}(\mathbf{a}^T
+        [\mathbf{W}\mathbf{x}_i \| \mathbf{W}\mathbf{x}_j]))}
+        {\sum_{k \in \mathcal{N}(i)} \exp(\text{LeakyReLU}(\mathbf{a}^T
+        [\mathbf{W}\mathbf{x}_i \| \mathbf{W}\mathbf{x}_k]))}
 
     Args:
         node_features_dim: Size of input node features
         out_features_dim: Size of output node embeddings
-        heads: Number of attention heads
-        concat: Whether to use concat of heads or mean reduction
-        bias: Whether to use bias in the node projection
-        negative_slope: Slope for the leaky relu
-        dropout: Probability p for dropout
-        edge_features_dim: Size of edge features
+        heads: Number of attention heads. Default ``1``
+        concat: Whether to use concat of heads or mean reduction. Default ``True``
+        bias: Whether to use bias in the node projection. Default ``True``
+        negative_slope: Slope for the leaky relu. Default ``0.2``
+        dropout: Probability p for dropout. Default ``0.0``
+        edge_features_dim: Size of edge features. Default ``None``
 
     Example:
 
     .. code-block:: python
+
+        import mlx.core as mx
+        from mlx_graphs.nn import GATConv
 
         conv = GATConv(16, 32, heads=2, concat=True)
         edge_index = mx.array([[0, 1, 2, 3, 4], [0, 0, 1, 1, 3]])
@@ -58,8 +74,8 @@ class GATConv(MessagePassing):
         self.lin_proj = Linear(node_features_dim, heads * out_features_dim, bias=False)
 
         glorot_init = nn.init.glorot_uniform()
-        self.att_src = glorot_init(mx.zeros((1, heads, out_features_dim)))
-        self.att_dst = glorot_init(mx.zeros((1, heads, out_features_dim)))
+        self.att_src = glorot_init(mx.zeros((1, heads, out_features_dim)), 1.0)
+        self.att_dst = glorot_init(mx.zeros((1, heads, out_features_dim)), 1.0)
 
         if bias:
             bias_shape = (heads * out_features_dim) if concat else (out_features_dim)
@@ -72,7 +88,7 @@ class GATConv(MessagePassing):
             self.edge_lin_proj = Linear(
                 edge_features_dim, heads * out_features_dim, bias=False
             )
-            self.edge_att = glorot_init(mx.zeros((1, heads, out_features_dim)))
+            self.edge_att = glorot_init(mx.zeros((1, heads, out_features_dim)), 1.0)
 
     def __call__(
         self,
@@ -127,10 +143,7 @@ class GATConv(MessagePassing):
         self,
         src_features: mx.array,
         dst_features: mx.array,
-        alpha_src: mx.array,
-        alpha_dst: mx.array,
-        index: mx.array,
-        edge_features: Optional[mx.array] = None,
+        **kwargs: Any,
     ) -> mx.array:
         """
         Computes a message for each edge in the graph following GAT's propagation rule.
@@ -147,6 +160,11 @@ class GATConv(MessagePassing):
         Returns:
             mx.array: The computed messages for each edge in the graph.
         """
+        alpha_src: mx.array = kwargs["alpha_src"]
+        alpha_dst: mx.array = kwargs["alpha_dst"]
+        index: mx.array = kwargs["index"]
+        edge_features: mx.array | None = kwargs.get("edge_features", None)
+
         alpha = alpha_src + alpha_dst
 
         if edge_features is not None:

@@ -42,14 +42,15 @@ def test_hetero_graph_data():
     assert hetero_data.num_nodes == expected_num_nodes, (
         "Expected number of nodes do not match"
     )
+    assert hetero_data.num_node_classes is not None
     assert hetero_data.num_node_classes["author"] == 3, (
         "Number of authors are different"
     )
-    assert hetero_data.num_edge_features[("author", "writes", "paper")] == 2, (
+    assert hetero_data.num_edge_features[("author", "writes", "paper")] == 2, (  # type: ignore[index]
         "edge_features are different"
     )
 
-    assert hetero_data.num_edge_features[("paper", "cites", "paper")] == 2, (
+    assert hetero_data.num_edge_features[("paper", "cites", "paper")] == 2, (  # type: ignore[index]
         "edge_features for paper are different"
     )
 

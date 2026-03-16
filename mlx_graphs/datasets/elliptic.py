@@ -70,13 +70,13 @@ class EllipticBitcoinDataset(Dataset):
             f"{self.raw_path}/{self.raw_file_names[0]}",
             dtype=float,
             delimiter=",",
-            usecols=np.arange(2, 167),
+            usecols=list(range(2, 167)),
         )
         node_ids = np.loadtxt(
             f"{self.raw_path}/{self.raw_file_names[0]}",
             dtype=str,
             delimiter=",",
-            usecols=np.arange(0, 2),
+            usecols=list(range(0, 2)),
         )
         edge_file = f"{self.raw_path}/{self.raw_file_names[1]}"
         label_file = f"{self.raw_path}/{self.raw_file_names[2]}"

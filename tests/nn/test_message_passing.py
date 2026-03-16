@@ -1,18 +1,21 @@
+from typing import Optional
+
 import mlx.core as mx
 import pytest
 
 from mlx_graphs.nn.message_passing import MessagePassing
+from mlx_graphs.utils import ScatterAggregations
 
 
 class MPNN(MessagePassing):
-    def __init__(self, aggr: str = "add"):
+    def __init__(self, aggr: ScatterAggregations = "add"):
         super().__init__(aggr=aggr)
 
     def __call__(
         self,
         node_features: mx.array,
         edge_index: mx.array,
-        edge_weights: mx.array,
+        edge_weights: Optional[mx.array] = None,
         **kwargs,
     ) -> mx.array:
         return self.propagate(
@@ -25,7 +28,7 @@ class MPNN(MessagePassing):
         self,
         src_features: mx.array,
         dst_features: mx.array,
-        edge_weights: mx.array = None,
+        edge_weights: Optional[mx.array] = None,
         **kwargs,
     ) -> mx.array:
         return (
@@ -114,4 +117,4 @@ def test_sum_aggregation_raise():
 
     with pytest.raises(Exception):
         edge_index = [[0, 1, 2], [1, 2, 0], [1, 2, 0]]
-        mpnn(x, edge_index, edge_weights=None)
+        mpnn(x, edge_index, edge_weights=None)  # type: ignore[arg-type]

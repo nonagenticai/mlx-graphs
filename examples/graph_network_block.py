@@ -30,7 +30,7 @@ class NodeModel(Module):
         aggregated_edges = mx.zeros([node_features.shape[0], edge_features.shape[1]])
         for i in range(node_features.shape[0]):
             aggregated_edges[i] = mx.where(
-                (destination_nodes == i).reshape(edge_features.shape[0], 1),
+                mx.array(destination_nodes == i).reshape(edge_features.shape[0], 1),
                 edge_features,
                 0,
             ).mean()

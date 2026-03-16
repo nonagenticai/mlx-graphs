@@ -22,6 +22,7 @@ def test_to_networkx():
             f"Node {node} does not have 'features' attribute"
         )
 
+    assert graph.node_features is not None
     for i in range(graph.num_nodes):
         assert mx.array_equal(
             mx.array(networkx_graph.nodes[i]["features"]), graph.node_features[i]
@@ -53,11 +54,49 @@ def test_from_networkx():
         == karate_club_networkx_graph.number_of_edges()
     ), "Number of edges are not equal"
 
+    assert restored_karate_club_dataset.node_features is not None
+    kc0 = karate_club_dataset[0]
+    assert isinstance(kc0, GraphData)
+    assert kc0.node_features is not None
     assert mx.array_equal(
         restored_karate_club_dataset.node_features,
-        karate_club_dataset[0].node_features,
+        kc0.node_features,
     ), "Node features are not equal"
     assert (
-        restored_karate_club_dataset.edge_index.shape[1]
-        == karate_club_dataset[0].edge_index.shape[1]
+        restored_karate_club_dataset.edge_index.shape[1] == kc0.edge_index.shape[1]
     ), "Edge index shapes are not equal"
+
+
+def test_from_networkx_labeled_nodes():
+    """Test that from_networkx handles non-integer (string) node labels."""
+    import networkx as nx
+
+    G = nx.Graph()
+    G.add_node("alice", features=[1.0, 0.0])
+    G.add_node("bob", features=[0.0, 1.0])
+    G.add_node("carol", features=[0.5, 0.5])
+    G.add_edge("alice", "bob")
+    G.add_edge("bob", "carol")
+
+    graph = from_networkx(G)
+
+    assert graph.num_nodes == 3
+    assert graph.num_edges == 2
+    assert graph.edge_index.shape == (2, 2)
+    assert graph.node_features is not None
+    assert graph.node_features.shape == (3, 2)
+    # Verify all edge indices are valid
+    assert int(graph.edge_index.max().item()) < 3
+    assert int(graph.edge_index.min().item()) >= 0
+
+
+def test_from_networkx_empty_graph():
+    """Test that from_networkx handles graphs with no edges."""
+    import networkx as nx
+
+    G = nx.Graph()
+    G.add_node(0)
+    G.add_node(1)
+
+    graph = from_networkx(G)
+    assert graph.edge_index.shape == (2, 0)

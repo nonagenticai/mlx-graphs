@@ -229,6 +229,86 @@ and provides an iterable over the dataset.
 
 
 
+Convenient Graph-to-Layer Interface
+-------------------------------------
+
+The :meth:`~mlx_graphs.data.data.GraphData.forward_dict` method returns a dictionary
+of core attributes (``edge_index``, ``node_features``, ``edge_features``) that can be
+unpacked directly into conv layer calls:
+
+.. code-block:: python
+
+    from mlx_graphs.data.data import GraphData
+    from mlx_graphs.nn import SAGEConv
+
+    graph = GraphData(
+        edge_index=mx.array([[0, 1], [1, 0]]),
+        node_features=mx.ones((2, 16)),
+    )
+
+    conv = SAGEConv(16, 32)
+    h = conv(**graph.forward_dict())
+    # Equivalent to: conv(edge_index=graph.edge_index, node_features=graph.node_features)
+
+
+Padded Batching for Compilation
+---------------------------------
+
+When using ``mx.compile``, all tensor shapes must be static. The ``pad=True``
+option in :meth:`~mlx_graphs.data.batch.batch` pads all graphs to uniform
+node and edge counts, enabling compilation:
+
+.. code-block:: python
+
+    from mlx_graphs.data.batch import batch
+
+    padded_batch = batch(graphs, pad=True)
+    # padded_batch._node_mask and padded_batch._edge_mask indicate real vs padded entries
+
+
+Full-Dataset Loading
+---------------------
+
+Use ``batch_size=-1`` in the :class:`~mlx_graphs.loaders.Dataloader` to load the entire
+dataset in a single batch, useful for transductive tasks like node classification:
+
+.. code-block:: python
+
+    from mlx_graphs.loaders import Dataloader
+
+    loader = Dataloader(dataset, batch_size=-1)
+    full_batch = next(iter(loader))
+
+
+Property Caching
+-----------------
+
+Properties like :attr:`~mlx_graphs.data.data.GraphData.num_nodes` are automatically
+cached after the first access. The cache is invalidated whenever any graph attribute
+is modified, so values are always correct:
+
+.. code-block:: python
+
+    graph = GraphData(edge_index=mx.array([[0, 1], [1, 0]]))
+    n = graph.num_nodes  # computed and cached
+    n = graph.num_nodes  # returned from cache (fast)
+    graph.node_features = mx.ones((5, 8))  # cache invalidated
+
+
+Dataset Statistics
+--------------------
+
+The :meth:`~mlx_graphs.datasets.Dataset.summary` method prints a table of
+dataset statistics:
+
+.. code-block:: python
+
+    from mlx_graphs.datasets import PlanetoidDataset
+
+    dataset = PlanetoidDataset("Cora")
+    print(dataset.summary())
+
+
 GNN Layers
 ------------
 
