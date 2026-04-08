@@ -1,7 +1,7 @@
 import os
 import warnings
 from itertools import repeat
-from typing import List, Literal, Optional, get_args
+from typing import List, Literal, Optional, cast, get_args
 
 import fsspec
 import mlx.core as mx
@@ -82,7 +82,7 @@ class PlanetoidDataset(Dataset):
         without_self_loops: bool = True,
         base_dir: Optional[str] = None,
     ):
-        name = name.lower()  # type: ignore[assignment]
+        name = cast(PLANETOID_NAMES, name.lower())
         self.split = split.lower()
         self.without_self_loops = without_self_loops
 
@@ -93,7 +93,9 @@ class PlanetoidDataset(Dataset):
 
         if self.split == "full":
             data = self.graphs[0]
-            data.train_mask = mx.where(data.val_mask | data.test_mask, False, True)  # type: ignore[union-attr]
+            val_mask = getattr(data, "val_mask")
+            test_mask = getattr(data, "test_mask")
+            setattr(data, "train_mask", mx.where(val_mask | test_mask, False, True))
 
     @property
     def raw_path(self) -> str:
@@ -184,7 +186,7 @@ def read_planetoid_data(
     val_mask = index_to_mask(val_index, size=y.shape[0])
     test_mask = index_to_mask(test_index, size=y.shape[0])
 
-    graph_dict: dict[int, list[int]] = graph  # type: ignore[assignment]
+    graph_dict = cast(dict[int, list[int]], graph)
     edge_index = edge_index_from_dict(
         graph_dict=graph_dict,
         num_nodes=y.shape[0],

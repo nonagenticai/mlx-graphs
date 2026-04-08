@@ -151,7 +151,7 @@ class NeighborLoader:
             edge_features = self.data.edge_features[original_edge_ids]
 
         # 5. Collect custom per-node attributes (e.g. train_mask)
-        kwargs = {
+        extra_attrs: dict[str, object] = {
             "batch_size": num_seeds,
             "n_id": n_id,
         }
@@ -173,13 +173,15 @@ class NeighborLoader:
                 and val.ndim >= 1
                 and val.shape[0] == num_nodes
             ):
-                kwargs[attr_name] = val[n_id]
+                extra_attrs[attr_name] = val[n_id]
 
-        return GraphData(
+        result = GraphData(
             edge_index=edge_index,
             node_features=node_features,
             edge_features=edge_features,
             graph_features=self.data.graph_features,
             node_labels=node_labels,
-            **kwargs,
         )
+        for attr_name, attr_val in extra_attrs.items():
+            setattr(result, attr_name, attr_val)
+        return result

@@ -136,7 +136,8 @@ class HeteroDataset(BaseDataset):
             mx.int32,
             mx.int16,
         ]:
-            return self[list(idx.flatten().tolist())]  # type: ignore[arg-type]
+            items = idx.flatten().tolist()
+            return self[list(items) if isinstance(items, list) else [items]]
 
         elif isinstance(idx, np.ndarray) and idx.dtype == np.int64:
             return self[list(map(int, idx.flat))]

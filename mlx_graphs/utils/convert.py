@@ -67,7 +67,8 @@ def to_networkx(
         G.add_node(i, **node_attrs)
 
     edge_attrs = {}
-    edge_list: list = data.edge_index.T.tolist()  # type: ignore[assignment]
+    raw_edges = data.edge_index.T.tolist()
+    edge_list: list = raw_edges if isinstance(raw_edges, list) else [raw_edges]
     for i, (v, w) in enumerate(edge_list):
         if remove_self_loops and v == w:
             continue
