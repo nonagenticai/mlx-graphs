@@ -222,6 +222,43 @@ class GraphData:
         return not self.is_undirected()
 
 
+class SampledSubgraph(GraphData):
+    """A GraphData subclass returned by samplers/loaders that adds the
+    sampling-specific attributes ``n_id`` (global node IDs of the sampled
+    nodes) and ``batch_size`` (number of seed nodes; the first ``batch_size``
+    rows are the seeds).
+    """
+
+    n_id: mx.array
+    batch_size: int
+
+    def __init__(
+        self,
+        edge_index: mx.array,
+        n_id: mx.array,
+        batch_size: int,
+        node_features: Optional[mx.array] = None,
+        edge_features: Optional[mx.array] = None,
+        graph_features: Optional[mx.array] = None,
+        node_labels: Optional[mx.array] = None,
+        edge_labels: Optional[mx.array] = None,
+        graph_labels: Optional[mx.array] = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(
+            edge_index=edge_index,
+            node_features=node_features,
+            edge_features=edge_features,
+            graph_features=graph_features,
+            node_labels=node_labels,
+            edge_labels=edge_labels,
+            graph_labels=graph_labels,
+            **kwargs,
+        )
+        self.n_id = n_id
+        self.batch_size = batch_size
+
+
 class HeteroGraphData:
     """
     Represents a graph structure with multiple node and edge types
@@ -458,9 +495,13 @@ class HeteroGraphData:
         return num_node_features_dict
 
     @property
-    def num_edge_features(self) -> dict[str, int]:
-        """Returns a dictionary of the number of edge features for each edge type."""
-        num_edge_features_dict = {}
+    def num_edge_features(self) -> dict[tuple[str, str, str], int]:
+        """Returns a dictionary of the number of edge features for each edge type.
+
+        Keys are 3-tuples ``(src_type, relation, dst_type)`` matching
+        :attr:`edge_index_dict` keys.
+        """
+        num_edge_features_dict: dict[tuple[str, str, str], int] = {}
         if self.edge_features_dict is not None:
             for edge_type, edge_features in self.edge_features_dict.items():
                 num_edge_features_dict[edge_type] = (

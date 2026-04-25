@@ -5,6 +5,7 @@ import numpy as np
 from mlx_cluster import neighbor_sample
 
 from mlx_graphs.data import GraphData
+from mlx_graphs.data.data import SampledSubgraph
 
 
 class NeighborLoader:
@@ -104,7 +105,7 @@ class NeighborLoader:
             np.random.shuffle(self._indices)
         return self
 
-    def __next__(self) -> GraphData:
+    def __next__(self) -> SampledSubgraph:
         if self._current_index >= len(self.input_nodes):
             raise StopIteration
 
@@ -175,13 +176,17 @@ class NeighborLoader:
             ):
                 extra_attrs[attr_name] = val[n_id]
 
-        result = GraphData(
+        result = SampledSubgraph(
             edge_index=edge_index,
+            n_id=n_id,
+            batch_size=num_seeds,
             node_features=node_features,
             edge_features=edge_features,
             graph_features=self.data.graph_features,
             node_labels=node_labels,
         )
         for attr_name, attr_val in extra_attrs.items():
+            if attr_name in {"n_id", "batch_size"}:
+                continue
             setattr(result, attr_name, attr_val)
         return result

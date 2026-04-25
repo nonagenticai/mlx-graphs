@@ -279,7 +279,7 @@ def test_batching():
 
         g1 = GraphData(node_features=node_features1, edge_index=edge_index1)
         g2 = Data(node_features=node_features2, edge_index=edge_index2)
-        graph_batch = batch([g1, g2])  # type: ignore[arg-type]
+        graph_batch = batch([g1, g2])  # ty: ignore[invalid-argument-type]
 
     # Batch indices
     g1 = GraphData(node_features=node_features1, edge_index=edge_index1)

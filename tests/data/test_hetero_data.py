@@ -46,11 +46,11 @@ def test_hetero_graph_data():
     assert hetero_data.num_node_classes["author"] == 3, (
         "Number of authors are different"
     )
-    assert hetero_data.num_edge_features[("author", "writes", "paper")] == 2, (  # type: ignore[index]
+    assert hetero_data.num_edge_features[("author", "writes", "paper")] == 2, (
         "edge_features are different"
     )
 
-    assert hetero_data.num_edge_features[("paper", "cites", "paper")] == 2, (  # type: ignore[index]
+    assert hetero_data.num_edge_features[("paper", "cites", "paper")] == 2, (
         "edge_features for paper are different"
     )
 

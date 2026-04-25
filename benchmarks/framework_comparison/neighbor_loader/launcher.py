@@ -16,7 +16,7 @@ torch.manual_seed(42)
 np.random.seed(42)
 
 # Use GPU for MLX
-mx.set_default_device(mx.gpu)
+mx.set_default_device(mx.Device(mx.gpu))
 
 # Benchmark configurations
 CONFIGS = [

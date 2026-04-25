@@ -68,4 +68,5 @@ def test_batch_unbatch_roundtrip_preserves_num_nodes():
         assert orig.num_nodes == rest.num_nodes, (
             f"num_nodes mismatch: {orig.num_nodes} vs {rest.num_nodes}"
         )
+        assert orig.node_features is not None and rest.node_features is not None
         assert mx.array_equal(orig.node_features, rest.node_features)

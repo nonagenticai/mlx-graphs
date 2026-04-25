@@ -45,7 +45,7 @@ class HeteroDataset(BaseDataset):
         return self.graphs[0].num_node_features
 
     @property
-    def num_edge_features(self) -> dict[str, int]:
+    def num_edge_features(self) -> dict[tuple[str, str, str], int]:
         """Returns a dictionary of the number of edge features for each edge type."""
         return self.graphs[0].num_edge_features
 

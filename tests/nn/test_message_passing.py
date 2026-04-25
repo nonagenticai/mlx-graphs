@@ -117,4 +117,4 @@ def test_sum_aggregation_raise():
 
     with pytest.raises(Exception):
         edge_index = [[0, 1, 2], [1, 2, 0], [1, 2, 0]]
-        mpnn(x, edge_index, edge_weights=None)  # type: ignore[arg-type]
+        mpnn(x, edge_index, edge_weights=None)  # ty: ignore[invalid-argument-type]

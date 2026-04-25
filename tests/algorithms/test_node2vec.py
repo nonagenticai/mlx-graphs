@@ -1,6 +1,13 @@
-import mlx.core as mx
+import pytest
 
-from mlx_graphs.algorithms import Node2Vec
+# mlx_cluster 0.0.7 ABI is incompatible with mlx 0.31.2+ (missing
+# mlx::core::metal::Device::get_command_encoder symbol). Skip until a
+# compatible mlx-cluster wheel is released.
+pytest.importorskip("mlx_cluster", exc_type=ImportError)
+
+import mlx.core as mx  # noqa: E402
+
+from mlx_graphs.algorithms import Node2Vec  # noqa: E402
 
 mx.random.seed(42)
 

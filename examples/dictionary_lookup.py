@@ -79,7 +79,7 @@ class DictionaryLookupDataset(object):
         edge_index = mx.array(self.edges, dtype=mx.int64)
         return edge_index
 
-    def get_permutations(self) -> list[list]:
+    def get_permutations(self) -> list[list[int] | tuple[int, ...]]:
         limit = math.factorial(self.k)
 
         # Apply a hard limit of the factorial size is too big
@@ -195,7 +195,7 @@ def handle_model(
 
         acc = mx.array(preds == trues).sum() / preds.shape[0]
         pbar.set_postfix({"acc": f"{acc.item():.3f}", "loss": f"{np.mean(losses):.3f}"})
-        yield acc
+        yield float(acc.item())
 
 
 def run_example():

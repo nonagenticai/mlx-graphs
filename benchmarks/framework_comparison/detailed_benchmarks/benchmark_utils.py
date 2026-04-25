@@ -3,6 +3,7 @@ import multiprocessing as mp
 import timeit
 from argparse import ArgumentTypeError
 from collections import defaultdict
+from typing import cast
 
 import mlx.core as mx
 import numpy as np
@@ -119,9 +120,11 @@ def print_benchmark(times, args, reduce_mean=False):
         )
 
     def format_header(header):
-        return f"{times[header]}" if math.isnan(times[header]) else format_value(header)
+        v = cast(float, times[header])
+        return f"{v}" if math.isnan(float(v)) else format_value(header)
 
-    for op, times in times.items():
+    for op, op_times in times.items():
+        times = op_times  # noqa: F823 -- intentional rebinding for nested helpers
         times_str = " | ".join(format_header(header) for header in headers)
 
         # Formatting each row
