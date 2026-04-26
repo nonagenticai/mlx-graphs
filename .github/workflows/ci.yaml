@@ -1,0 +1,63 @@
+# CI for mlx-graphs (external repo, Apple-Silicon-only)
+#
+# Tests are NOT run in CI: mlx-graphs requires Apple Silicon (MLX) and the
+# self-hosted Linux runners are amd64. Tests run locally on mini1/mini2.
+# Type checking is also skipped (see [tool.local-ci] skip_ty in pyproject.toml).
+#
+# This workflow runs only the lint/security checks that work on amd64 Linux.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  UV_HTTP_TIMEOUT: 300
+
+jobs:
+  lint-and-security:
+    name: Lint & Security
+    runs-on: [self-hosted, linux, x86_64]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          python-version: "3.14"
+          cache-dependency-glob: "**/pyproject.toml"
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Install security tools
+        run: uv pip install bandit pip-audit
+
+      - name: Run ruff linter (check only)
+        run: uv run ruff check mlx_graphs/ tests/
+
+      - name: Run ruff formatter (check only)
+        run: uv run ruff format --check mlx_graphs/ tests/
+
+      # bandit findings in upstream code are tracked but non-blocking —
+      # external repo, see [tool.local-ci] skip_ty rationale in pyproject.toml.
+      - name: Security scan - bandit
+        continue-on-error: true
+        run: uv run bandit -r mlx_graphs/ -ll -ii
+
+      - name: Security scan - pip-audit
+        run: uv run pip-audit --skip-editable --ignore-vuln CVE-2026-3219
