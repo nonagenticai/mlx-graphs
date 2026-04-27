@@ -1,15 +1,9 @@
 # CI for mlx-graphs (external repo, Apple-Silicon-only)
 #
-# Tests are NOT run in CI: mlx-graphs requires Apple Silicon (MLX) and the
-# self-hosted Linux runners are amd64. Tests run locally on mini1/mini2.
-# Type checking is also skipped (see [tool.local-ci] skip_ty in pyproject.toml).
-#
-# This workflow runs only the lint/security checks that work on amd64 Linux.
-#
-# Runs on GitHub-hosted ubuntu-latest because this is a public fork — the
-# nonagenticai org self-hosted runner groups have allows_public_repositories=false
-# (correct security posture), so jobs from this repo would queue forever on
-# self-hosted labels.
+# Runs on the org's self-hosted macOS arm64 runner (mini2-darwin, labels
+# self-hosted/macOS/ARM64/darwin/mlx). MLX requires Apple Silicon, and this
+# runner is the only place mlx wheels actually install + import.
+# Type checking is skipped (see [tool.local-ci] skip_ty in pyproject.toml).
 
 name: CI
 
@@ -33,7 +27,7 @@ env:
 jobs:
   lint-and-security:
     name: Lint & Security
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS, ARM64, mlx]
     steps:
       - uses: actions/checkout@v4
         with:
