@@ -5,6 +5,11 @@
 # Type checking is also skipped (see [tool.local-ci] skip_ty in pyproject.toml).
 #
 # This workflow runs only the lint/security checks that work on amd64 Linux.
+#
+# Runs on GitHub-hosted ubuntu-latest because this is a public fork — the
+# nonagenticai org self-hosted runner groups have allows_public_repositories=false
+# (correct security posture), so jobs from this repo would queue forever on
+# self-hosted labels.
 
 name: CI
 
@@ -28,7 +33,7 @@ env:
 jobs:
   lint-and-security:
     name: Lint & Security
-    runs-on: [self-hosted, linux, x86_64]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
