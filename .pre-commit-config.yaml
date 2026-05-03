@@ -1,4 +1,4 @@
-# Pre-commit hooks for artifact-service
+# Pre-commit hooks for mlx-graphs
 # Install: pre-commit install -t pre-commit -t pre-push
 # Run all: pre-commit run --all-files
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Developer environment setup for artifact-service
+# Developer environment setup for mlx-graphs
 # Usage: ./scripts/setup-dev.sh
 
 set -e
