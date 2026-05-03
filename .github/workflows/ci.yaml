@@ -54,8 +54,12 @@ jobs:
       - name: Run ruff formatter (check only)
         run: uv run ruff format --check mlx_graphs/ tests/
 
-      # bandit findings in upstream code are tracked but non-blocking —
-      # external repo, see [tool.local-ci] skip_ty rationale in pyproject.toml.
+      # All Medium+High severity findings are patched in our fork
+      # (commit 0fe86a3). The 21 remaining Low-severity findings are
+      # upstream noise (B404 subprocess, B311 random-not-crypto, asserts
+      # in tests). Continue-on-error keeps that noise non-blocking; bandit
+      # at `-lll -iii` would tighten to "fail on new High only" if we ever
+      # want to remove continue-on-error.
       - name: Security scan - bandit
         continue-on-error: true
         run: uv run bandit -r mlx_graphs/ -ll -ii
