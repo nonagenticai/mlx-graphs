@@ -65,4 +65,5 @@ jobs:
         run: uv run bandit -r mlx_graphs/ -ll -ii
 
       - name: Security scan - pip-audit
-        run: uv run pip-audit --skip-editable
+        run: scripts/pip-audit.sh
+

@@ -61,8 +61,8 @@ repos:
         stages: [pre-push]
 
       - id: pip-audit
-        name: pip-audit security scan
-        entry: bash -c 'uv pip install pip-audit -q 2>/dev/null && uv run pip-audit --ignore-vuln GHSA-wj6h-64fc-37mp'
+        name: pip-audit security scan (uv-export → pip-audit)
+        entry: scripts/pip-audit.sh
         language: system
         pass_filenames: false
         stages: [pre-push]
