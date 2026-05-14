@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mlx-graphs"
-version = "0.0.9"
+version = "0.0.10"
 description = "Graph Neural Network library made for Apple Silicon"
 authors = [{name="mlx-graphs contributors"}]
 readme = "README.md"
@@ -22,12 +22,21 @@ dependencies = [
     "requests>=2.31.0",
     "fsspec>=2024.2.0",
     "tqdm>=4.66.1",
-    "mlx_cluster>=0.0.5; sys_platform == 'darwin'",
-    "urllib3>=2.6.3",
+    "urllib3>=2.7.0",
     "werkzeug>=3.1.5",
 ]
 
 [project.optional-dependencies]
+# mlx_cluster ships a C++ Metal extension that is built from sdist on install.
+# The 0.0.7 wheel (newest installable release) is ABI-incompatible with
+# mlx >= 0.31.2 — its RandomWalk.cpp calls the removed
+# mlx::core::metal::Device::get_command_encoder(), so the cmake build fails.
+# Only the random-walk / NeighborLoader code paths import it, and those
+# already degrade gracefully (lazy try/except ImportError). Keep it optional
+# so a plain `mlx-graphs` install does not require building that extension.
+random-walk = [
+  "mlx_cluster>=0.0.5; sys_platform == 'darwin'",
+]
 dev = [
   "pre-commit>=3.6.0",
 ]
