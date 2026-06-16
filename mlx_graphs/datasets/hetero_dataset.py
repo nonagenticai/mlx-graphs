@@ -77,7 +77,7 @@ class HeteroDataset(BaseDataset):
     def _num_classes(
         self, task: Literal["node", "edge", "graph"]
     ) -> Union[dict[str, int], int]:
-        num_classes_dict = {}
+        num_classes_dict: dict[Any, list] = {}
         for g in self.graphs:
             if task == "node":
                 labels_dict = g.node_labels_dict
