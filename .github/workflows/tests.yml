@@ -1,0 +1,52 @@
+name: Tests
+
+# ADDED 2026-08-19. This repo had a real test suite and CI ran NONE of it.
+# 11 of 89 python repos across the fleet were in that state -- 383 test files
+# unexercised, recorded as M15 in gitops-production
+# docs/open-findings-2026-08-18.md. It is not neglect: MLX only installs on
+# Apple Silicon, so the Linux archetypes cannot run these. It still means main
+# can be green while the suite is red, which is exactly what was found in
+# mlx_backend (5 failures, 4 months old) and mlx_ingestion_backend (32).
+#
+# PUBLIC repo, so GitHub-hosted macOS is FREE and the self-hosted pool refuses it (allows_public_repositories=false). NB --extra test, not --all-extras: the random-walk extra pulls mlx-cluster, which fails to resolve and leaves the venv incomplete.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.14"
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
+
+      - name: Install dependencies
+        run: uv sync --extra test
+
+      - name: Pytest
+        run: uv run pytest tests/ -q
+
+      - name: Assert the suite is not vacuous
+        run: |
+          set -euo pipefail
+          n=$(uv run pytest tests/ -q --collect-only 2>/dev/null | tail -1 | grep -oE '^[0-9]+' || echo 0)
+          echo "collected ${n} tests"
+          if [ "${n:-0}" -lt 140 ]; then
+            echo "::error::expected >=140 tests, collected ${n}. A shrinking suite is a silent loss of coverage."
+            exit 1
+          fi
