@@ -39,14 +39,28 @@ jobs:
         run: uv sync --extra test
 
       - name: Pytest
-        run: uv run pytest tests/ -q
-
-      - name: Assert the suite is not vacuous
+        # Single run, teed -- the floor below reads THIS result rather than
+        # invoking pytest a second time. The old form ran `--collect-only`
+        # again, which doubled the job AND tripped the coverage gate (a
+        # collect-only pass executes nothing, so coverage reads ~20%).
         run: |
           set -euo pipefail
-          n=$(uv run pytest tests/ -q --collect-only 2>/dev/null | tail -1 | grep -oE '^[0-9]+' || echo 0)
-          echo "collected ${n} tests"
+          uv run pytest tests/ -q | tee /tmp/pytest-out.txt
+
+      - name: Assert the suite is not vacuous
+        # pytest exits 5 on an empty suite, and a collection error that gathered
+        # nothing must not read as a pass.
+        #
+        # Parse "N passed" from the real run. The previous version grepped
+        # `^[0-9]+` against the last line of --collect-only, but that line is
+        # `===== 400 tests collected in 0.28s =====` -- the count is NOT at the
+        # start, so it always extracted nothing and reported `collected 0`,
+        # failing every repo whose summary carries a coverage banner.
+        run: |
+          set -euo pipefail
+          n=$(grep -oE '[0-9]+ passed' /tmp/pytest-out.txt | grep -oE '^[0-9]+' | tail -1 || echo 0)
+          echo "passed ${n} tests"
           if [ "${n:-0}" -lt 140 ]; then
-            echo "::error::expected >=140 tests, collected ${n}. A shrinking suite is a silent loss of coverage."
+            echo "::error::expected >=140 passing tests, saw ${n}. A shrinking suite is a silent loss of coverage."
             exit 1
           fi
